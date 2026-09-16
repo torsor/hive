@@ -1,0 +1,14 @@
+# {{ ansible_managed }} — hive phone SPA (static only; API on :8787)
+server {
+    listen {{ hive_web_bind_effective }}:{{ hive_web_nginx_port }};
+    server_name {{ inventory_hostname }};
+
+    location = /{{ hive_web_base_path }} {
+        return 301 /{{ hive_web_base_path }}/;
+    }
+
+    location /{{ hive_web_base_path }}/ {
+        alias {{ hive_web_dist_dir }}/;
+        index index.html;
+    }
+}

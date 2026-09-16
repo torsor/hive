@@ -1,0 +1,31 @@
+[package]
+name = "hive-panel"
+version = "0.2.0"
+description = "Hive fleet GUI — HTTP client of hive-hub"
+authors = ["torsor lab"]
+edition = "2021"
+
+# Standalone from the crate workspace at repo root.
+[workspace]
+
+[lib]
+name = "hive_panel_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+hive-protocol = { path = "../../../crates/hive-protocol" }
+hive-common = { path = "../../../crates/hive-common" }
+hive-client = { path = "../../../crates/hive-client" }
+tauri = { version = "2", features = [] }
+tauri-plugin-dialog = "2"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+toml = "0.8"
+anyhow = "1"
+chrono = { version = "0.4", default-features = false, features = ["clock", "std", "serde"] }
+reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls", "stream"] }
+tokio = { version = "1", features = ["rt-multi-thread", "macros", "time"] }
+futures-util = "0.3"

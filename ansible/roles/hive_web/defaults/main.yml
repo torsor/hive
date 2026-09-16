@@ -1,0 +1,2 @@
+hive_web_nginx_package: nginx
+hive_web_nginx_site_name: hive-console

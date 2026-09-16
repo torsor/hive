@@ -1,0 +1,7 @@
+# Copy to ~/.hive/hosts on the hub machine and edit.
+# One Tailscale / SSH hostname per line; `#` starts a comment.
+# Each name must resolve for the hub’s HTTP client (Tailscale MagicDNS is fine).
+#
+# hub
+# box-a
+# box-b

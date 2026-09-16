@@ -1,0 +1,28 @@
+[package]
+name = "hive-cli"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+authors.workspace = true
+description = "hive CLI (status, say, lifecycle, host/hub serve)"
+
+[lib]
+name = "hive_cli"
+path = "src/lib.rs"
+
+[[bin]]
+name = "hive"
+path = "src/main.rs"
+
+[dependencies]
+hive-protocol.workspace = true
+hive-common.workspace = true
+hive-client.workspace = true
+hive-host = { path = "../hive-host" }
+hive-hub = { path = "../hive-hub" }
+serde.workspace = true
+serde_json.workspace = true
+anyhow.workspace = true
+tokio.workspace = true
+clap.workspace = true
+chrono.workspace = true

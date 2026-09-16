@@ -1,0 +1,23 @@
+# Example hive fleet inventory.
+# Copy to ~/.hive/fleet/inventory.yml and replace the placeholder names with
+# your Tailscale / SSH hostnames. ~/.hive/hosts on the laptop and on the hub
+# are GENERATED from that file by `ansible-playbook site.yml`.
+hive_hosts:
+  hosts:
+    box-a:
+    box-b:
+  children:
+    hive_hub:
+
+# The one always-on host that runs hive-hub and serves the phone console.
+# A child group of hive_hosts, so the hub is also a fleet host.
+hive_hub:
+  hosts:
+    hub:
+  vars:
+    hive_hub_enabled: true
+
+control:
+  hosts:
+    localhost:
+      ansible_connection: local

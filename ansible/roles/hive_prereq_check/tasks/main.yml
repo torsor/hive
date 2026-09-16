@@ -1,0 +1,29 @@
+# Role: hive_prereq_check
+# Purpose: report missing agent prerequisites; never fail the run.
+# Consumes: n/a
+# Produces: debug notes only.
+# Ordering: last on fleet hosts.
+- name: Check tmux
+  ansible.builtin.command: command -v tmux
+  register: hive_tmux
+  changed_when: false
+  failed_when: false
+
+- name: Check claude
+  ansible.builtin.command: command -v claude
+  register: hive_claude
+  changed_when: false
+  failed_when: false
+
+- name: Check codex
+  ansible.builtin.command: command -v codex
+  register: hive_codex
+  changed_when: false
+  failed_when: false
+
+- name: Report hive host prerequisites
+  ansible.builtin.debug:
+    msg:
+      - "{{ inventory_hostname }}: tmux {{ 'ok' if hive_tmux.rc == 0 else 'MISSING' }}"
+      - "{{ inventory_hostname }}: claude {{ 'ok' if hive_claude.rc == 0 else 'MISSING (set CLAUDE_BIN)' }}"
+      - "{{ inventory_hostname }}: codex {{ 'ok' if hive_codex.rc == 0 else 'MISSING (set CODEX_BIN)' }}"

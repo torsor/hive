@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
+    <meta name="color-scheme" content="light dark" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <title>hive</title>
+    <link rel="stylesheet" href="/src/tokens.css" />
+    <link rel="stylesheet" href="/src/console.css" />
+    <link rel="stylesheet" href="/vendor/katex/katex.min.css" />
+    <script src="/vendor/katex/katex.min.js"></script>
+    <script type="module" src="/src/app.js"></script>
+  </head>
+  <body class="paper-texture">
+    <span class="app-label-badge" aria-hidden="true">hive</span>
+    <header class="chrome">
+      <h1 class="brand">hive</h1>
+      <button id="spawn" class="btn btn--sm" type="button">Spawn</button>
+      <button id="refresh" class="btn btn--sm" aria-label="Refresh">↻</button>
+    </header>
+
+    <p id="msg" class="msg" role="status" aria-live="polite"></p>
+
+    <main>
+      <section id="panel-fleet" class="panel">
+        <div id="chips" class="chips"></div>
+        <div id="agents-list" class="stack"></div>
+        <p id="agents-empty" class="empty muted">No sessions yet.</p>
+      </section>
+    </main>
+
+    <dialog id="sheet" class="sheet">
+      <h2 id="sheet-title" class="sheet-title"></h2>
+      <div id="sheet-body" class="sheet-body"></div>
+      <div class="sheet-actions">
+        <button id="sheet-cancel" class="btn btn--quiet">Cancel</button>
+        <button id="sheet-ok" class="btn">OK</button>
+      </div>
+    </dialog>
+
+    <dialog id="chat" class="chat">
+      <header class="chat-head">
+        <div class="chat-title-group">
+          <h2 id="chat-title" class="sheet-title"></h2>
+          <span id="chat-where" class="muted mono"></span>
+        </div>
+        <button id="chat-refresh" class="btn btn--sm btn--quiet" aria-label="Refresh">
+          ↻
+        </button>
+        <button id="chat-close" class="btn btn--sm btn--quiet">Close</button>
+      </header>
+      <p id="chat-blocked" class="chat-blocked" hidden>
+        <span>Waiting on a permission prompt — only the terminal can answer it.</span>
+        <button id="chat-attach" class="btn btn--sm">Attach</button>
+      </p>
+      <p id="chat-msg" class="msg" role="status" aria-live="polite"></p>
+      <div class="chat-log-wrap">
+        <div id="chat-log" class="chat-log"></div>
+        <button type="button" id="chat-jump" class="chat-jump" hidden>Latest ↓</button>
+      </div>
+      <form id="chat-compose" class="chat-compose">
+        <p id="chat-send-status" class="chat-send-status" role="status" hidden>Sending…</p>
+        <p id="chat-compose-hint" class="chat-compose-hint muted" hidden></p>
+        <div class="chat-compose-row">
+          <textarea
+            id="chat-text"
+            class="chat-text"
+            rows="2"
+            placeholder="Message the agent…"
+            autocomplete="off"
+            autocorrect="off"
+            autocapitalize="off"
+            spellcheck="false"
+            enterkeyhint="send"
+          ></textarea>
+          <button id="chat-send" class="btn" type="submit">Send</button>
+        </div>
+      </form>
+    </dialog>
+
+    <footer class="chrome chrome--foot">
+      <select id="theme" class="field" aria-label="Theme">
+        <option value="thing">thing</option>
+        <option value="thing-light">thing-light</option>
+        <option value="torsor">torsor</option>
+        <option value="torsor-dark">torsor-dark</option>
+        <option value="torsor-b">torsor-b</option>
+        <option value="torsor-b-dark">torsor-b-dark</option>
+      </select>
+      <span id="count" class="muted mono"></span>
+    </footer>
+  </body>
+</html>

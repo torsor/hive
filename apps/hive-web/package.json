@@ -1,0 +1,21 @@
+{
+  "name": "hive-web",
+  "private": true,
+  "version": "0.2.0",
+  "type": "module",
+  "scripts": {
+    "sync-renderer": "node scripts/sync-chat-render.mjs",
+    "predev": "npm run sync-renderer",
+    "prebuild": "npm run sync-renderer",
+    "pretest": "npm run sync-renderer",
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "check": "vitest run --passWithNoTests",
+    "test": "vitest run"
+  },
+  "devDependencies": {
+    "vite": "^7.0.4",
+    "vitest": "^3.2.7"
+  }
+}

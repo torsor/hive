@@ -1,0 +1,37 @@
+[package]
+name = "hive-hub"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+authors.workspace = true
+description = "Always-on hive fleet aggregator"
+
+[lib]
+name = "hive_hub"
+path = "src/lib.rs"
+
+[[bin]]
+name = "hive-hub"
+path = "src/main.rs"
+
+[dependencies]
+hive-protocol.workspace = true
+hive-common.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+toml.workspace = true
+anyhow.workspace = true
+chrono.workspace = true
+tokio.workspace = true
+axum.workspace = true
+tower-http.workspace = true
+reqwest.workspace = true
+clap.workspace = true
+futures-util.workspace = true
+tokio-stream.workspace = true
+
+[dev-dependencies]
+wiremock = "0.6"
+serde_json.workspace = true
+tower = "0.5"
+http-body-util = "0.1"

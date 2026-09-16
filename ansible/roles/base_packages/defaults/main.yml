@@ -1,0 +1,8 @@
+base_packages:
+  - git
+  - tmux
+  - curl
+  - build-essential
+  - pkg-config
+  - libssl-dev
+  - sudo

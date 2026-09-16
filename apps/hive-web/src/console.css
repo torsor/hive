@@ -1,0 +1,332 @@
+/* Touch layout for the workshop console. tokens.css owns every colour; nothing
+   here hard-codes one, so the six Torsor themes keep working unchanged. This is
+   NOT a port of styles.css: that is a 957-line desktop grid/tab/dialog system a
+   single-column touch layout would override anyway, and two copies would drift.
+
+   Note: tokens.css does not define --fg/--surface/--rule/--warn — it defines
+   --text/--bg-panel/--border/--warning instead. Substituted below per the
+   brief's fallback instructions; literal fallbacks are kept where the brief
+   specified them. */
+
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  font-family: var(--font-body, system-ui, -apple-system, sans-serif);
+  background: var(--bg); color: var(--text);
+  padding: env(safe-area-inset-top) env(safe-area-inset-right)
+           env(safe-area-inset-bottom) env(safe-area-inset-left);
+}
+.chrome {
+  position: sticky; top: 0; z-index: 2;
+  display: flex; gap: .5rem; align-items: center;
+  padding: .6rem .8rem;
+  background: var(--bg); border-bottom: 1px solid var(--border);
+}
+.chrome--foot { position: sticky; top: auto; bottom: 0; border-top: 1px solid var(--border); border-bottom: 0; }
+.brand { font-size: 1rem; margin: 0; margin-right: auto; }
+.tabs { display: flex; gap: .25rem; }
+.tab, .btn, .chip {
+  min-height: 44px;                      /* Apple's minimum touch target */
+  padding: .5rem .9rem;
+  border: 1px solid var(--border); border-radius: .5rem;
+  background: var(--bg-panel); color: var(--text);
+  font: inherit; cursor: pointer;
+}
+.btn--sm { min-height: 40px; padding: .4rem .7rem; font-size: .9rem; }
+.btn--quiet { background: transparent; }
+.tab.active, .chip.active { background: var(--accent-soft, var(--bg-panel)); font-weight: 600; }
+.btn.starred { color: var(--ochre, var(--accent, inherit)); font-weight: 600; }
+.btn:disabled { opacity: .5; }
+main { padding: .8rem; }
+.stack { display: flex; flex-direction: column; gap: .8rem; }
+.card { border: 1px solid var(--border); border-radius: .75rem; padding: .8rem; background: var(--bg-panel); }
+.card-warn { border-color: var(--warning, var(--border)); }
+.card-title { margin: 0 0 .2rem; font-size: 1.05rem; }
+.card-sub { margin: 0 0 .6rem; font-size: .9rem; }
+.card-actions { display: flex; flex-wrap: wrap; gap: .4rem; }
+.chips { display: flex; flex-wrap: wrap; gap: .4rem; margin-bottom: .8rem; }
+.chip.static { min-height: 0; padding: .2rem .5rem; font-size: .8rem; cursor: default; }
+.msg { margin: 0; padding: .4rem .8rem; min-height: 1.4rem; font-size: .9rem; }
+.msg.error { color: var(--danger, crimson); }
+.muted { opacity: .7; }
+.mono { font-family: var(--font-mono, ui-monospace, monospace); }
+.empty { padding: 1.2rem .2rem; }
+.timers { margin-top: 1.2rem; }
+.timer-row, .usage-row, .item-sub { font-size: .85rem; margin: .2rem 0; }
+.item-title { font-weight: 600; margin-top: .8rem; }
+.file-row { display: flex; align-items: center; gap: .5rem; margin: .3rem 0; }
+.file-name { flex: 1; word-break: break-all; font-size: .9rem; }
+/* Bottom sheet, not a centred dialog: a phone's thumb is at the bottom. */
+.sheet {
+  width: 100%; max-width: 100%; max-height: 85vh;
+  margin: auto auto 0; padding: 1rem;
+  border: 1px solid var(--border); border-radius: 1rem 1rem 0 0;
+  background: var(--bg-panel); color: var(--text);
+  overflow-y: auto;
+}
+.sheet::backdrop { background: rgb(0 0 0 / .45); }
+.sheet-title { margin: 0 0 .6rem; font-size: 1.05rem; }
+.sheet-line { margin: .3rem 0; }
+.attach-command {
+  display: block; width: 100%; min-height: 9rem; resize: vertical;
+  margin: .7rem 0; padding: .7rem;
+  border: 1px solid var(--border); border-radius: .5rem;
+  background: var(--bg); color: var(--text);
+  font-size: .85rem; line-height: 1.4;
+}
+.attach-actions { display: flex; align-items: center; flex-wrap: wrap; gap: .7rem; }
+.sheet-actions { display: flex; gap: .5rem; justify-content: flex-end; margin-top: 1rem;
+                 position: sticky; bottom: 0; background: var(--bg-panel); padding-top: .5rem; }
+/* Rendered chat. A full-screen dialog rather than a sheet: a conversation
+   wants the whole viewport, and the sheet's OK/Cancel row means nothing here.
+   A dialog in the top layer is not affected by body's safe-area padding, so
+   the insets are applied again on the head and the compose row. */
+.chat {
+  width: 100%; max-width: 100%;
+  /* NOT 100vh. On Safari `vh` is the pre-keyboard height, so a 100vh dialog
+     does not shrink when the keyboard appears and the compose row ends up
+     underneath it. --chat-h carries the real visualViewport height. */
+  height: var(--chat-h, 100dvh); max-height: var(--chat-h, 100dvh);
+  margin: 0; padding: 0; border: 0;
+  background: var(--bg); color: var(--text);
+}
+/* `open` + display:flex, or the UA's display:block wins and the column
+   layout never applies. Same reason .chat-blocked[hidden] exists below. */
+.chat[open] { display: flex; flex-direction: column; }
+.chat::backdrop { background: var(--bg); }
+.chat-head {
+  display: flex; align-items: center; gap: .5rem; flex: 0 0 auto;
+  padding: calc(.6rem + env(safe-area-inset-top)) .8rem .6rem;
+  border-bottom: 1px solid var(--border);
+}
+.chat-title-group {
+  display: flex; align-items: baseline; gap: .5rem;
+  min-width: 0; margin-right: auto;
+}
+.chat-title-group .sheet-title { margin: 0; }
+/* `hidden` hides via the UA stylesheet and the author `display` below
+   outranks it. Without this the banner claims every agent is stuck on a
+   permission prompt, including agents that are merely working. */
+.chat-blocked[hidden] { display: none; }
+.chat-blocked {
+  display: flex; align-items: center; gap: .5rem; flex: 0 0 auto;
+  margin: 0; padding: .5rem .8rem;
+  border-bottom: 1px solid var(--border);
+  font-size: .9rem;
+}
+.chat-log-wrap {
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+.chat-log {
+  flex: 1 1 auto; min-height: 0;
+  overflow-y: auto; overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-y;
+  padding: .8rem;
+}
+.chat-msg {
+  display: block;
+  max-width: 92%;
+  margin: 0 0 .8rem;
+}
+.chat-msg--you { margin-left: auto; }
+.chat-msg--agent { margin-right: auto; }
+.chat-tail-sentinel {
+  height: 1px;
+  width: 100%;
+  margin: 0;
+  pointer-events: none;
+}
+.chat-jump {
+  position: absolute;
+  right: .85rem;
+  bottom: .75rem;
+  z-index: 10;
+  min-height: 44px;
+  padding: .35rem .85rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--bg-panel);
+  color: var(--text);
+  font: inherit;
+  font-size: .85rem;
+  box-shadow: 0 1px 4px rgb(0 0 0 / 18%);
+  cursor: pointer;
+}
+.chat-jump[hidden] { display: none; }
+.chat-load-earlier {
+  display: flex; justify-content: center; padding: .25rem 0 .5rem;
+}
+.chat-load-earlier .btn { font: inherit; font-size: .85rem; }
+.chat-msg--thinking { opacity: .72; font-style: italic; }
+.chat-who {
+  font-size: .75rem; text-transform: uppercase; letter-spacing: .04em;
+  opacity: .7; margin-bottom: .2rem;
+}
+.chat-msg--you .chat-who { text-align: right; }
+.chat-msg--pending { opacity: .78; }
+.chat-msg--pending-failed { opacity: 1; }
+.chat-pending-label {
+  margin-top: .25rem; font-size: .72rem; color: var(--muted); text-align: right;
+}
+.chat-msg--pending-failed .chat-pending-label { color: var(--danger, crimson); }
+.chat-send-status {
+  margin: 0; font-size: .85rem; color: var(--muted);
+}
+.chat-send-status[hidden] { display: none; }
+.chat-compose[aria-busy="true"] .chat-send-status {
+  display: block;
+  color: var(--text);
+}
+.chat-body {
+  border: 1px solid var(--border); border-radius: .6rem;
+  padding: .5rem .7rem; background: var(--bg-panel);
+  line-height: 1.5; overflow-wrap: anywhere;
+}
+.chat-body > :first-child { margin-top: 0; }
+.chat-body > :last-child { margin-bottom: 0; }
+.chat-body p { margin: 0 0 .5rem; }
+.chat-body ul, .chat-body ol { margin: 0 0 .5rem; padding-left: 1.3em; }
+.chat-body blockquote {
+  margin: 0 0 .5rem; padding-left: .6rem;
+  border-left: 2px solid var(--border); opacity: .8;
+}
+.chat-body pre {
+  margin: 0 0 .5rem; padding: .5rem; border-radius: .4rem;
+  background: var(--bg); overflow-x: auto;
+}
+.chat-body code { font-family: var(--font-mono, ui-monospace, monospace); font-size: .92em; }
+.chat-body table { border-collapse: collapse; margin: 0 0 .5rem; }
+.chat-body th, .chat-body td { border: 1px solid var(--border); padding: .2rem .4rem; }
+/* Display math is the one thing allowed its own horizontal scroll — a wide
+   commutative diagram must not push the whole conversation sideways. */
+.chat-body .katex-display { overflow-x: auto; overflow-y: hidden; padding: .2em 0; }
+.chat-body .math-error { color: var(--danger, crimson); }
+.chat-tool {
+  display: flex; gap: .4rem; font-size: .8rem; opacity: .7;
+  font-family: var(--font-mono, ui-monospace, monospace);
+}
+.chat-tool--failed { color: var(--danger, crimson); opacity: 1; }
+.chat-tool-text { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.chat-compose {
+  display: flex; flex-direction: column; gap: .35rem; flex: 0 0 auto;
+  padding: .6rem .8rem calc(.6rem + env(safe-area-inset-bottom));
+  border-top: 1px solid var(--border);
+}
+.chat-compose-row {
+  display: flex; gap: .5rem; align-items: flex-end;
+}
+.chat-compose-hint {
+  margin: 0; font-size: .85rem;
+}
+.chat-text {
+  flex: 1; resize: none; min-height: 44px; max-height: 40vh;
+  padding: .5rem; border: 1px solid var(--border); border-radius: .5rem;
+  background: var(--bg-panel); color: var(--text);
+  font-family: inherit; line-height: 1.4;
+  touch-action: manipulation;
+  -webkit-user-select: text;
+  user-select: text;
+  /* Below 16px, iOS Safari zooms the page on focus and never zooms back.
+     This is not a typographic choice. */
+  font-size: 16px;
+}
+
+.field {
+  width: 100%;
+  min-height: 44px;
+  padding: .5rem .7rem;
+  border: 1px solid var(--border); border-radius: .5rem;
+  background: var(--bg-panel); color: var(--text);
+  font: inherit;
+}
+input.field.mono, textarea.field.mono, select.field.mono {
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 16px;
+}
+.spawn-form, .spawn-browse { display: flex; flex-direction: column; gap: .75rem; }
+.form-field { display: flex; flex-direction: column; gap: .35rem; font-size: .9rem; }
+.form-field > span:first-child { font-weight: 600; }
+.spawn-root-row { display: flex; gap: .4rem; align-items: stretch; }
+.spawn-root-row .field { flex: 1; min-width: 0; }
+.form-checks { display: flex; flex-direction: column; gap: .4rem; }
+.form-check {
+  display: flex; flex-wrap: wrap; align-items: center; gap: .45rem;
+  min-height: 44px;
+}
+.form-hint { font-size: .85rem; }
+.form-extra { display: flex; flex-direction: column; gap: .45rem; }
+.form-error { margin: 0; color: var(--danger, crimson); font-size: .9rem; }
+.spawn-actions {
+  display: flex; gap: .5rem; justify-content: flex-end; flex-wrap: wrap;
+  margin-top: .25rem;
+}
+.spawn-browse-toolbar {
+  display: flex; gap: .4rem; align-items: center; flex-wrap: wrap;
+}
+.spawn-browse-cwd {
+  flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis;
+  white-space: nowrap; font-size: .85rem;
+}
+.spawn-browse-list {
+  list-style: none; margin: 0; padding: 0;
+  max-height: 40vh; overflow-y: auto;
+  border: 1px solid var(--border); border-radius: .5rem;
+}
+.spawn-browse-list li { border-bottom: 1px solid var(--border); }
+.spawn-browse-list li:last-child { border-bottom: 0; }
+.spawn-browse-entry {
+  display: block; width: 100%; min-height: 44px; padding: .55rem .75rem;
+  border: 0; background: transparent; color: var(--text);
+  text-align: left; font: inherit; cursor: pointer;
+}
+.path-copy-block {
+  display: flex; flex-direction: column; gap: .45rem;
+  padding: .65rem .75rem;
+  border: 1px solid var(--border); border-radius: .5rem;
+  background: var(--bg);
+}
+.path-copy-label { font-size: .8rem; font-weight: 600; text-transform: uppercase; letter-spacing: .04em; opacity: .75; }
+.path-copy-display {
+  font-size: .85rem; line-height: 1.35;
+  overflow-wrap: anywhere; word-break: break-word;
+}
+.path-copy-actions { display: flex; flex-wrap: wrap; align-items: center; gap: .45rem; }
+.path-copy-result { font-size: .85rem; }
+.path-copy-hint { margin: 0; font-size: .85rem; }
+.path-copy-pending { margin: 0; font-size: .85rem; }
+.path-copy-hidden {
+  position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+  border: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap;
+}
+.card-dir {
+  margin: 0 0 .45rem; font-size: .82rem; line-height: 1.35;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+
+@media (min-width: 700px) {
+  main { max-width: 46rem; margin: 0 auto; }
+  .sheet { max-width: 34rem; margin: auto; border-radius: 1rem; }
+}
+
+.app-label-badge {
+  position: fixed;
+  right: 0.55rem;
+  bottom: 3.25rem;
+  z-index: 30;
+  padding: 0.15rem 0.45rem;
+  border: 1px solid var(--border);
+  border-radius: 0.25rem;
+  background: color-mix(in srgb, var(--bg-panel) 88%, transparent);
+  color: var(--muted);
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.68rem;
+  letter-spacing: 0.03em;
+  pointer-events: none;
+  user-select: none;
+}

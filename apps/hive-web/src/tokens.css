@@ -1,0 +1,621 @@
+/*
+ * Torsor — design tokens
+ * "Solarized Cézanne": warm paper, sage, terracotta, blue-grey, ochre, dusty plum.
+ * Geometry + twisting + simplicity. Klee/Cézanne palette, Roboto family.
+ */
+
+:root {
+  /* --- Neutrals: warm paper / parchment --- */
+  --paper-0:  #faf6ee;   /* page bg, lightest */
+  --paper-1:  #f3ecdd;   /* panel */
+  --paper-2:  #ebe1cc;   /* hover / sunken */
+  --paper-3:  #ddd0b6;   /* border subtle */
+  --paper-4:  #c9b994;   /* border strong */
+
+  --ink-0:    #2a2620;   /* text high */
+  --ink-1:    #4a4136;   /* text body */
+  --ink-2:    #6e6353;   /* text muted */
+  --ink-3:    #8e8270;   /* text dim */
+
+  /* --- Cézanne accents (oklch-tuned, washed) --- */
+  --sage:       oklch(64% 0.07 145);   /* foliage */
+  --sage-deep:  oklch(48% 0.07 150);
+  --sage-soft:  oklch(85% 0.04 145);
+
+  --terracotta:      oklch(62% 0.13 40);   /* roof, primary */
+  --terracotta-deep: oklch(48% 0.14 38);
+  --terracotta-soft: oklch(88% 0.05 45);
+
+  --skyblue:      oklch(64% 0.08 235);    /* sky / link */
+  --skyblue-deep: oklch(46% 0.10 235);
+  --skyblue-soft: oklch(88% 0.04 235);
+
+  --ochre:      oklch(72% 0.12 80);       /* wheat field */
+  --ochre-deep: oklch(58% 0.13 75);
+  --ochre-soft: oklch(90% 0.06 85);
+
+  --plum:       oklch(50% 0.09 350);      /* dusty figure */
+  --plum-deep:  oklch(38% 0.10 350);
+  --plum-soft:  oklch(86% 0.04 350);
+
+  /* Redon "pop" — used sparingly for highlights */
+  --gold:       oklch(78% 0.15 85);
+  --vermilion:  oklch(60% 0.18 28);
+
+  /* --- Semantic --- */
+  --bg:        var(--paper-0);
+  --bg-panel:  var(--paper-1);
+  --bg-sunken: var(--paper-2);
+  --border:    var(--paper-3);
+  --border-strong: var(--paper-4);
+
+  --text:      var(--ink-0);
+  --text-body: var(--ink-1);
+  --muted:     var(--ink-2);
+  --dim:       var(--ink-3);
+
+  --accent:        var(--terracotta);
+  --accent-deep:   var(--terracotta-deep);
+  --accent-soft:   var(--terracotta-soft);
+  --link:          var(--skyblue-deep);
+  --link-hover:    var(--terracotta-deep);
+
+  --success: var(--sage-deep);
+  --warning: var(--ochre-deep);
+  --danger:  var(--vermilion);
+
+  /* --- Typography --- */
+  --font-sans:    'Roboto Flex', 'Roboto', system-ui, sans-serif;
+  --font-body:    'Roboto', system-ui, sans-serif;
+  --font-serif:   'Roboto Serif', 'Source Serif 4', Georgia, serif;
+  --font-mono:    'Roboto Mono', ui-monospace, 'JetBrains Mono', monospace;
+  --font-math:    'Roboto Serif', 'Latin Modern Math', 'STIX Two Math', serif;
+
+  /* Type scale (modular, ratio ~1.2) */
+  --text-2xs: 0.6875rem;   /* 11 */
+  --text-xs:  0.75rem;     /* 12 */
+  --text-sm:  0.8125rem;   /* 13 */
+  --text-base:0.9375rem;   /* 15 */
+  --text-md:  1rem;        /* 16 */
+  --text-lg:  1.1875rem;   /* 19 */
+  --text-xl:  1.4375rem;   /* 23 */
+  --text-2xl: 1.75rem;     /* 28 */
+  --text-3xl: 2.125rem;    /* 34 */
+  --text-4xl: 2.625rem;    /* 42 */
+  --text-5xl: 3.375rem;    /* 54 */
+
+  --leading-tight: 1.18;
+  --leading-snug:  1.32;
+  --leading-body:  1.55;
+  --leading-loose: 1.75;
+
+  /* --- Spacing (4px base) --- */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+  --space-7: 3rem;
+  --space-8: 4rem;
+  --space-9: 6rem;
+
+  /* --- Radii: small. Torsor = simple, geometric, not rounded-blobby --- */
+  --radius-1: 2px;
+  --radius-2: 4px;
+  --radius-3: 6px;
+  --radius-pill: 999px;
+
+  /* --- Shadows: soft, paper-like --- */
+  --shadow-1: 0 1px 0 rgba(74, 65, 54, 0.06);
+  --shadow-2: 0 1px 2px rgba(74, 65, 54, 0.08), 0 0 0 1px rgba(74, 65, 54, 0.04);
+  --shadow-3: 0 4px 12px rgba(74, 65, 54, 0.10), 0 1px 2px rgba(74, 65, 54, 0.05);
+
+  /* --- Layout --- */
+  --measure: 68ch;          /* readable column */
+  --measure-wide: 86ch;
+  --content-max: 1180px;
+
+  /* --- Motion --- */
+  --ease: cubic-bezier(0.22, 0.61, 0.36, 1);
+  --dur-fast: 120ms;
+  --dur:      200ms;
+  --dur-slow: 360ms;
+
+  --btn-fg: var(--paper-0);
+}
+
+/* --- Theme: torsor-dark (warm dark; was system dark mode) --- */
+html[data-browse-theme="torsor-dark"] {
+  --paper-0:  #1c1a16;
+  --paper-1:  #25221c;
+  --paper-2:  #2f2b23;
+  --paper-3:  #403a2f;
+  --paper-4:  #59503f;
+
+  --ink-0:    #ede4cf;
+  --ink-1:    #d6cdb6;
+  --ink-2:    #a89e84;
+  --ink-3:    #7d745d;
+
+  --sage:       oklch(70% 0.08 145);
+  --sage-deep:  oklch(78% 0.08 150);
+  --sage-soft:  oklch(36% 0.05 145);
+
+  --terracotta:      oklch(70% 0.14 42);
+  --terracotta-deep: oklch(78% 0.14 42);
+  --terracotta-soft: oklch(34% 0.07 40);
+
+  --skyblue:      oklch(70% 0.09 235);
+  --skyblue-deep: oklch(78% 0.09 235);
+  --skyblue-soft: oklch(34% 0.05 235);
+
+  --ochre:      oklch(78% 0.12 82);
+  --ochre-deep: oklch(82% 0.13 80);
+  --ochre-soft: oklch(36% 0.06 80);
+
+  --plum:       oklch(70% 0.09 350);
+  --plum-deep:  oklch(78% 0.09 350);
+  --plum-soft:  oklch(34% 0.06 350);
+
+  --link:        var(--skyblue-deep);
+  --link-hover:  var(--terracotta-deep);
+
+  --shadow-1: 0 1px 0 rgba(0,0,0,0.3);
+  --shadow-2: 0 1px 2px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,237,200,0.04);
+  --shadow-3: 0 4px 14px rgba(0,0,0,0.5), 0 1px 2px rgba(0,0,0,0.3);
+
+  --btn-fg: var(--paper-0);
+}
+
+/* --- Theme: thing (default dark in thing browse / envtools) --- */
+html[data-browse-theme="thing"] {
+  --paper-0: #0f1419;
+  --paper-1: #1a2332;
+  --paper-2: #161b22;
+  --paper-3: #30363d;
+  --paper-4: #484f58;
+
+  --ink-0: #e6edf3;
+  --ink-1: #c9d1d9;
+  --ink-2: #8b949e;
+  --ink-3: #6e7681;
+
+  --terracotta: oklch(72% 0.12 250);
+  --terracotta-deep: #58a6ff;
+  --terracotta-soft: #1a2332;
+
+  --skyblue-deep: #58a6ff;
+  --skyblue-soft: #1a2332;
+
+  --sage-deep: #3fb950;
+  --ochre-deep: #d29922;
+  --vermilion: #f85149;
+
+  --link: #58a6ff;
+  --link-hover: #79c0ff;
+
+  --shadow-1: 0 1px 0 rgba(0, 0, 0, 0.3);
+  --shadow-2: 0 1px 2px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.04);
+  --shadow-3: 0 4px 14px rgba(0, 0, 0, 0.5), 0 1px 2px rgba(0, 0, 0, 0.3);
+
+  --btn-fg: #ffffff;
+}
+
+/* --- Theme: thing-light --- */
+html[data-browse-theme="thing-light"] {
+  --paper-0: #f6f8fa;
+  --paper-1: #ffffff;
+  --paper-2: #f0f3f6;
+  --paper-3: #d0d7de;
+  --paper-4: #afb8c1;
+
+  --ink-0: #1f2328;
+  --ink-1: #24292f;
+  --ink-2: #656d76;
+  --ink-3: #8c959f;
+
+  --terracotta: oklch(55% 0.16 250);
+  --terracotta-deep: #0969da;
+  --terracotta-soft: #ddf4ff;
+
+  --skyblue-deep: #0969da;
+  --skyblue-soft: #ddf4ff;
+
+  --sage-deep: #1a7f37;
+  --ochre-deep: #9a6700;
+  --vermilion: #cf222e;
+
+  --link: #0969da;
+  --link-hover: #0550ae;
+
+  --shadow-1: 0 1px 0 rgba(31, 35, 40, 0.06);
+  --shadow-2: 0 1px 2px rgba(31, 35, 40, 0.08), 0 0 0 1px rgba(31, 35, 40, 0.04);
+  --shadow-3: 0 4px 12px rgba(31, 35, 40, 0.1), 0 1px 2px rgba(31, 35, 40, 0.05);
+
+  --btn-fg: #ffffff;
+}
+
+/*
+ * Theme: torsor-b — Style B (techno-organic: periwinkle / teal / coral on lavender + cream).
+ * Palette from lab/design/torsor-style/style-b.
+ */
+html[data-browse-theme="torsor-b"] {
+  --paper-0: #eceaf7;
+  --paper-1: #f9f7f1;
+  --paper-2: #e9e6f5;
+  --paper-3: #d9d6ec;
+  --paper-4: #cfcae0;
+
+  --ink-0: #2c2b4d;
+  --ink-1: #48456a;
+  --ink-2: #6c6a92;
+  --ink-3: #9590b0;
+
+  --sage: #3fa39d;
+  --sage-deep: #328f89;
+  --sage-soft: #d4ece9;
+
+  --terracotta: #8b86d6;
+  --terracotta-deep: #6e68b8;
+  --terracotta-soft: #e3e0f2;
+
+  --skyblue: #8b86d6;
+  --skyblue-deep: #6e68b8;
+  --skyblue-soft: #ddd9f0;
+
+  --ochre: #df8567;
+  --ochre-deep: #c96f52;
+  --ochre-soft: #f5ddd4;
+
+  --plum: #8b86d6;
+  --plum-deep: #6e68b8;
+  --plum-soft: #efedf8;
+
+  --gold: #a9dcd7;
+  --vermilion: #df8567;
+
+  --link: #6e68b8;
+  --link-hover: #3fa39d;
+
+  --shadow-1: 0 1px 0 rgba(44, 43, 77, 0.08);
+  --shadow-2: 0 1px 2px rgba(44, 43, 77, 0.1), 0 0 0 1px rgba(44, 43, 77, 0.05);
+  --shadow-3: 0 18px 50px -24px rgba(44, 43, 77, 0.45);
+
+  --btn-fg: #faf6ec;
+}
+
+/*
+ * Theme: torsor-b-dark — Style B at night: deep indigo shell, muted accents, low glare.
+ */
+html[data-browse-theme="torsor-b-dark"] {
+  --paper-0: #161522;
+  --paper-1: #211f32;
+  --paper-2: #1a1828;
+  --paper-3: #3a3652;
+  --paper-4: #4e4a68;
+
+  --ink-0: #e8e4f4;
+  --ink-1: #c8c3dc;
+  --ink-2: #9590b0;
+  --ink-3: #7d79a0;
+
+  --sage: #5ec4bc;
+  --sage-deep: #4db8b0;
+  --sage-soft: #1e3331;
+
+  --terracotta: #9d97e0;
+  --terracotta-deep: #7a73c4;
+  --terracotta-soft: #2a2840;
+
+  --skyblue: #9d97e0;
+  --skyblue-deep: #7a73c4;
+  --skyblue-soft: #2e2c44;
+
+  --ochre: #e89578;
+  --ochre-deep: #f0a990;
+  --ochre-soft: #3a2a26;
+
+  --plum: #9d97e0;
+  --plum-deep: #7a73c4;
+  --plum-soft: #2a2840;
+
+  --gold: #7ecbc4;
+  --vermilion: #e89578;
+
+  --link: #b0aae8;
+  --link-hover: #5ec4bc;
+
+  --shadow-1: 0 1px 0 rgba(0, 0, 0, 0.35);
+  --shadow-2: 0 1px 2px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(232, 228, 244, 0.04);
+  --shadow-3: 0 8px 28px rgba(0, 0, 0, 0.55);
+
+  --btn-fg: #161522;
+}
+
+html { font-size: 16px; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text-body);
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  line-height: var(--leading-body);
+  -webkit-font-smoothing: antialiased;
+  font-feature-settings: "kern", "liga", "ss01";
+}
+
+/* Subtle paper texture on body */
+body.paper-texture::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background-image:
+    radial-gradient(circle at 13% 27%, rgba(110,99,83,0.025) 0, transparent 50%),
+    radial-gradient(circle at 87% 73%, rgba(110,99,83,0.02) 0, transparent 60%);
+  mix-blend-mode: multiply;
+}
+
+h1, h2, h3, h4, h5 {
+  font-family: var(--font-sans);
+  color: var(--text);
+  font-weight: 500;
+  line-height: var(--leading-tight);
+  letter-spacing: -0.012em;
+  margin: 0 0 var(--space-3);
+}
+h1 { font-size: var(--text-4xl); font-weight: 400; letter-spacing: -0.02em; }
+h2 { font-size: var(--text-2xl); }
+h3 { font-size: var(--text-xl); }
+h4 { font-size: var(--text-lg); }
+h5 { font-size: var(--text-md); text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); font-weight: 500; }
+
+p { margin: 0 0 var(--space-4); max-width: var(--measure); }
+
+a {
+  color: var(--link);
+  text-decoration: none;
+  border-bottom: 1px solid color-mix(in oklch, var(--link), transparent 70%);
+  transition: color var(--dur) var(--ease), border-color var(--dur) var(--ease);
+}
+a:hover { color: var(--link-hover); border-bottom-color: currentColor; }
+
+code, kbd, samp {
+  font-family: var(--font-mono);
+  font-size: 0.92em;
+  background: var(--bg-sunken);
+  color: var(--text);
+  padding: 0.08em 0.35em;
+  border-radius: var(--radius-1);
+  border: 1px solid var(--border);
+}
+pre {
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  line-height: 1.55;
+  background: var(--bg-panel);
+  color: var(--text);
+  padding: var(--space-4) var(--space-5);
+  border-radius: var(--radius-2);
+  border: 1px solid var(--border);
+  overflow-x: auto;
+  margin: 0 0 var(--space-5);
+}
+pre code { background: none; border: none; padding: 0; font-size: inherit; }
+
+hr {
+  border: 0;
+  border-top: 1px solid var(--border);
+  margin: var(--space-6) 0;
+}
+
+::selection { background: color-mix(in oklch, var(--ochre), transparent 60%); color: var(--text); }
+
+/* --- Buttons --- */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-family: var(--font-sans);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  line-height: 1;
+  padding: 0.55rem 0.95rem;
+  border-radius: var(--radius-2);
+  border: 1px solid var(--accent-deep);
+  background: var(--accent);
+  color: var(--btn-fg);
+  cursor: pointer;
+  transition: filter var(--dur) var(--ease), transform var(--dur-fast) var(--ease);
+}
+.btn:hover { filter: brightness(0.95); }
+.btn:active { transform: translateY(1px); }
+.btn--ghost {
+  background: transparent;
+  color: var(--text);
+  border-color: var(--border-strong);
+}
+.btn--ghost:hover { background: var(--bg-sunken); filter: none; }
+.btn--quiet {
+  background: transparent;
+  color: var(--muted);
+  border-color: transparent;
+  padding: 0.45rem 0.6rem;
+}
+.btn--quiet:hover { background: var(--bg-sunken); color: var(--text); filter: none; }
+.btn--sm { font-size: var(--text-xs); padding: 0.35rem 0.65rem; }
+
+/* --- Inputs --- */
+.field {
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  background: var(--bg);
+  color: var(--text);
+  padding: 0.5rem 0.7rem;
+  border-radius: var(--radius-2);
+  border: 1px solid var(--border-strong);
+  outline: none;
+  transition: border-color var(--dur) var(--ease), box-shadow var(--dur) var(--ease);
+}
+.field:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px color-mix(in oklch, var(--accent), transparent 80%);
+}
+select.field { padding-right: 2rem; appearance: none;
+  background-image: linear-gradient(45deg, transparent 50%, var(--muted) 50%), linear-gradient(135deg, var(--muted) 50%, transparent 50%);
+  background-position: calc(100% - 18px) 50%, calc(100% - 13px) 50%;
+  background-size: 5px 5px, 5px 5px; background-repeat: no-repeat; }
+
+/* --- Card --- */
+.card {
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-3);
+  padding: var(--space-5);
+  box-shadow: var(--shadow-1);
+}
+
+/* --- Badges --- */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3em;
+  font-family: var(--font-sans);
+  font-size: var(--text-2xs);
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 0.18rem 0.5rem;
+  border-radius: var(--radius-pill);
+  border: 1px solid currentColor;
+  color: var(--accent-deep);
+  background: color-mix(in oklch, var(--accent), transparent 88%);
+}
+.badge--sage   { color: var(--sage-deep);       background: color-mix(in oklch, var(--sage),       transparent 88%); }
+.badge--sky    { color: var(--skyblue-deep);    background: color-mix(in oklch, var(--skyblue),    transparent 88%); }
+.badge--ochre  { color: var(--ochre-deep);      background: color-mix(in oklch, var(--ochre),      transparent 85%); }
+.badge--plum   { color: var(--plum-deep);       background: color-mix(in oklch, var(--plum),       transparent 85%); }
+
+/* --- Tables --- */
+table.t {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--text-sm);
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-3);
+  overflow: hidden;
+}
+table.t th, table.t td {
+  text-align: left;
+  padding: 0.55rem 0.8rem;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+}
+table.t th {
+  background: var(--bg-sunken);
+  font-weight: 500;
+  color: var(--muted);
+  text-transform: uppercase;
+  font-size: var(--text-xs);
+  letter-spacing: 0.04em;
+}
+table.t tr:last-child td { border-bottom: none; }
+table.t tr:hover td { background: color-mix(in oklch, var(--ochre-soft), transparent 60%); }
+
+/* --- Math display (KaTeX-ish) --- */
+.eq {
+  font-family: var(--font-math);
+  font-style: italic;
+  font-size: 1.02em;
+}
+.eq--display {
+  display: block;
+  text-align: center;
+  margin: var(--space-5) 0;
+  font-size: 1.08em;
+}
+.eq sub, .eq sup { font-style: normal; font-size: 0.7em; }
+
+/* --- Citations / footnotes --- */
+.cite {
+  font-variant-numeric: oldstyle-nums;
+  color: var(--accent-deep);
+  font-size: 0.78em;
+  vertical-align: super;
+  text-decoration: none;
+  border: none;
+  margin-left: 1px;
+  padding: 0 0.2em;
+}
+.cite:hover { background: color-mix(in oklch, var(--accent), transparent 85%); border-radius: 2px; }
+
+.references {
+  font-size: var(--text-sm);
+  color: var(--text-body);
+  counter-reset: ref;
+  list-style: none;
+  padding-left: 0;
+}
+.references li {
+  counter-increment: ref;
+  padding-left: 2.4em;
+  position: relative;
+  margin-bottom: var(--space-3);
+  line-height: var(--leading-snug);
+}
+.references li::before {
+  content: "[" counter(ref) "]";
+  position: absolute;
+  left: 0;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+  font-family: var(--font-mono);
+  font-size: 0.85em;
+  top: 0.1em;
+}
+.references cite { font-style: italic; color: var(--text); }
+
+/* --- Section eyebrow / kicker --- */
+.kicker {
+  font-family: var(--font-sans);
+  font-size: var(--text-xs);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--accent-deep);
+  margin-bottom: var(--space-3);
+}
+
+/* --- Decorative geometric mark (the "torsor mark") --- */
+.torsor-mark {
+  display: inline-block;
+  width: 1em; height: 1em;
+  vertical-align: -0.15em;
+}
+
+/* --- Utility --- */
+.muted { color: var(--muted); }
+.dim   { color: var(--dim); }
+.mono  { font-family: var(--font-mono); }
+.serif { font-family: var(--font-serif); }
+.center{ text-align: center; }
+.stack > * + * { margin-top: var(--space-4); }
+.row { display: flex; gap: var(--space-4); align-items: center; flex-wrap: wrap; }
+.grow { flex: 1 1 auto; }
+
+/* --- Container --- */
+.container {
+  width: 100%;
+  max-width: min(var(--content-max), 100%);
+  margin: 0 auto;
+  padding: 0 var(--space-5);
+  position: relative;
+  z-index: 1;
+  min-width: 0;
+  box-sizing: border-box;
+}
+.prose { max-width: var(--measure); }
+.prose p { max-width: none; }

@@ -1,0 +1,45 @@
+# THE bare-metal → hive fleet sequence. Ordering lives here only.
+# Run: ansible-playbook site.yml -K
+# Drift: ansible-playbook site.yml -K --check --diff --limit <host>
+- name: Converge hive fleet hosts
+  hosts: hive_hosts
+  roles:
+    - role: base_packages
+    - role: rust_toolchain
+    - role: hive_checkout
+    - role: hive_build
+    - role: hive_host
+    - role: hive_hub
+      when: hive_hub_enabled | default(false) | bool
+    - role: hive_web
+      when: hive_hub_enabled | default(false) | bool
+    - role: hive_prereq_check
+  post_tasks:
+    - name: Locate installed hive-host binary
+      ansible.builtin.stat:
+        path: "{{ hive_bin_dir }}/hive-host"
+      check_mode: false
+      register: hive_host_bin
+      tags: [summary]
+    - name: Report checkout ref
+      ansible.builtin.command:
+        cmd: git -C {{ hive_checkout_dir }} rev-parse --short HEAD
+      changed_when: false
+      check_mode: false
+      register: hive_git_rev
+      when: hive_host_bin.stat.exists
+      tags: [summary]
+    - name: Hive converge summary
+      ansible.builtin.debug:
+        msg: >-
+          {{ inventory_hostname }}:
+          {{ hive_git_rev.stdout if hive_host_bin.stat.exists else 'not converged — no binary at ' + hive_bin_dir }}
+      tags: [summary]
+
+- name: Generate laptop client config from inventory (D-T2)
+  hosts: localhost
+  connection: local
+  gather_facts: true
+  roles:
+    - role: client_hostsfile
+    - role: client_config

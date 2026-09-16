@@ -1,0 +1,47 @@
+# Role: hive_build
+# Purpose: release-build hive-host (and hive-hub on hub host).
+# Consumes: hive_checkout_dir, hive_checkout_result.
+# Produces: target/release binaries.
+# Ordering: after hive_checkout.
+- name: Build hive-host release binary
+  ansible.builtin.command:
+    cmd: cargo build --release -p hive-host
+    chdir: "{{ hive_checkout_dir }}"
+  environment:
+    PATH: "{{ ansible_facts.env.HOME }}/.cargo/bin:{{ ansible_facts.env.PATH }}"
+  register: hive_host_build
+  changed_when: hive_checkout_result is changed
+  tags: [build]
+
+- name: Build hive-hub release binary
+  ansible.builtin.command:
+    cmd: cargo build --release -p hive-hub
+    chdir: "{{ hive_checkout_dir }}"
+  environment:
+    PATH: "{{ ansible_facts.env.HOME }}/.cargo/bin:{{ ansible_facts.env.PATH }}"
+  when: hive_hub_enabled | default(false) | bool
+  register: hive_hub_build
+  changed_when: hive_checkout_result is changed
+  tags: [build]
+
+- name: Build hive-web release binary
+  ansible.builtin.command:
+    cmd: cargo build --release -p hive-web
+    chdir: "{{ hive_checkout_dir }}"
+  environment:
+    PATH: "{{ ansible_facts.env.HOME }}/.cargo/bin:{{ ansible_facts.env.PATH }}"
+  when: hive_hub_enabled | default(false) | bool
+  register: hive_web_build
+  changed_when: hive_checkout_result is changed
+  tags: [build]
+
+- name: Build hive-web release binary
+  ansible.builtin.command:
+    cmd: cargo build --release -p hive-web
+    chdir: "{{ hive_checkout_dir }}"
+  environment:
+    PATH: "{{ ansible_facts.env.HOME }}/.cargo/bin:{{ ansible_facts.env.PATH }}"
+  when: hive_hub_enabled | default(false) | bool
+  register: hive_web_build
+  changed_when: hive_checkout_result is changed
+  tags: [build]

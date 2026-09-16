@@ -1,0 +1,20 @@
+# Role: rust_toolchain
+# Purpose: stable Rust/cargo for on-box hive builds.
+# Consumes: ansible user HOME.
+# Produces: ~/.cargo/bin/cargo available.
+# Ordering: after base_packages, before hive_build.
+- name: Check for cargo
+  ansible.builtin.command: cargo --version
+  register: hive_cargo_check
+  changed_when: false
+  failed_when: false
+  tags: [toolchain]
+
+- name: Install rustup (stable default)
+  ansible.builtin.shell: |
+    curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --default-toolchain stable
+  args:
+    creates: "{{ ansible_facts.env.HOME }}/.cargo/bin/cargo"
+    executable: /bin/bash
+  when: hive_cargo_check.rc != 0
+  tags: [toolchain]

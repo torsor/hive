@@ -1,0 +1,115 @@
+# Role: hive_web
+# Purpose: phone SPA static assets + nginx site on hub host.
+# Consumes: hive_home, hive_web_base_path, hive_hub_port, hive_web_local_repo.
+# SPA builds on control node; nginx serves {{ hive_web_dist_dir }} at /hive/.
+- name: Ensure hive bin directory on hub
+  ansible.builtin.file:
+    path: "{{ hive_bin_dir }}"
+    state: directory
+    mode: "0755"
+  tags: [web]
+
+- name: Build phone SPA assets on control node
+  ansible.builtin.command:
+    cmd: bash -lc 'npm ci && VITE_BASE=/{{ hive_web_base_path }}/ npm run build'
+    chdir: "{{ hive_web_local_repo }}/apps/hive-web"
+  delegate_to: localhost
+  run_once: true
+  become: false
+  register: hive_web_npm_build
+  changed_when: hive_web_npm_build.rc == 0
+  tags: [web, build]
+
+- name: Ensure web dist directory on hub
+  ansible.builtin.file:
+    path: "{{ hive_web_dist_dir }}"
+    state: directory
+    mode: "0755"
+  tags: [web]
+
+- name: Deploy phone SPA dist to hub
+  ansible.builtin.copy:
+    src: "{{ hive_web_local_repo }}/apps/hive-web/dist/"
+    dest: "{{ hive_web_dist_dir }}/"
+    mode: "0644"
+    directory_mode: "0755"
+  tags: [web]
+
+- name: Resolve Tailscale IPv4 bind address for hive-web
+  ansible.builtin.command: tailscale ip -4
+  register: hive_web_tailscale_ip
+  changed_when: false
+  check_mode: false
+  failed_when: hive_web_tailscale_ip.stdout_lines | length == 0
+  when: hive_bind is not defined
+  tags: [web]
+
+- name: Set effective hive-web bind address
+  ansible.builtin.set_fact:
+    hive_web_bind_effective: >-
+      {{ hive_bind if hive_bind is defined else hive_web_tailscale_ip.stdout_lines[0] }}
+  tags: [web]
+
+- name: Phone SPA hub config.json
+  ansible.builtin.template:
+    src: config.json.j2
+    dest: "{{ hive_web_dist_dir }}/config.json"
+    mode: "0644"
+  tags: [web]
+
+# nginx site template points at hive_web_dist_dir, but until `ansible -K` converges
+# nginx the live alias may still be ~/.hive/web/dist/ — mirror so deploys take effect.
+- name: Mirror phone SPA dist to legacy nginx docroot
+  ansible.builtin.copy:
+    src: "{{ hive_web_dist_dir }}/"
+    dest: "{{ hive_home }}/web/dist/"
+    mode: "0644"
+    directory_mode: "0755"
+    remote_src: true
+  when: hive_web_dist_dir != hive_home ~ '/web/dist'
+  tags: [web]
+
+- name: Install nginx on hub
+  become: true
+  ansible.builtin.apt:
+    name: "{{ hive_web_nginx_package }}"
+    state: present
+    update_cache: true
+    cache_valid_time: 86400
+  tags: [web]
+
+- name: Deploy hive nginx site
+  become: true
+  ansible.builtin.template:
+    src: nginx-site.conf.j2
+    dest: "/etc/nginx/sites-available/{{ hive_web_nginx_site_name }}"
+    mode: "0644"
+  notify: Reload nginx
+  tags: [web]
+
+- name: Enable hive nginx site
+  become: true
+  ansible.builtin.file:
+    src: "/etc/nginx/sites-available/{{ hive_web_nginx_site_name }}"
+    dest: "/etc/nginx/sites-enabled/{{ hive_web_nginx_site_name }}"
+    state: link
+    force: true
+  notify: Reload nginx
+  tags: [web]
+
+- name: Ensure nginx is enabled and running
+  become: true
+  ansible.builtin.service:
+    name: nginx
+    state: started
+    enabled: true
+  tags: [web]
+
+- name: Stop and disable hive-web user unit (retired on hub)
+  ansible.builtin.systemd:
+    name: hive-web
+    state: stopped
+    enabled: false
+    scope: user
+  failed_when: false
+  tags: [web]

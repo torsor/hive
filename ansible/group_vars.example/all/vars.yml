@@ -1,0 +1,18 @@
+# Example shared vars. Copy to ~/.hive/fleet/group_vars/all/vars.yml and edit.
+# Ansible loads group_vars/ from the directory that holds the inventory file.
+hive_repo_url: https://github.com/OWNER/hive.git   # what the boxes clone
+hive_ref: main                                     # branch, tag, or SHA to converge
+hive_checkout_dir: /srv/lab/hive
+hive_bin_dir: "{{ hive_checkout_dir }}/bin"
+# Control-node repo root (ansible/..). SPA builds here; Rust builds on the boxes.
+hive_web_local_repo: "{{ playbook_dir }}/.."
+hive_web_dist_dir: "{{ hive_checkout_dir }}/web/dist"
+hive_home: "{{ ansible_facts.env.HOME }}/.hive"
+hive_host_port: 8788
+hive_hub_port: 8787
+hive_web_base_path: hive          # URL path → http://<hub>/hive/
+hive_web_nginx_port: 80
+hive_hub_host: hub                # written to the laptop's client.toml
+
+client_hostsfile_path: "{{ ansible_facts.env.HOME }}/.hive/hosts"
+client_config_path: "{{ ansible_facts.env.HOME }}/.hive/client.toml"

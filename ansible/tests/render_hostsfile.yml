@@ -1,0 +1,21 @@
+# Prove hosts-file generation against the example inventory, writing only to /tmp.
+# Run from ansible/: ansible-playbook -i inventory.example.yml tests/render_hostsfile.yml
+- hosts: localhost
+  connection: local
+  gather_facts: true
+  tasks:
+    - ansible.builtin.include_role:
+        name: client_hostsfile
+      vars:
+        client_hostsfile_path: /tmp/hive-ansible-test-hosts.d/hosts
+    - name: Show generated hosts file
+      ansible.builtin.command: cat /tmp/hive-ansible-test-hosts.d/hosts
+      changed_when: false
+      register: hosts_out
+    - ansible.builtin.assert:
+        that:
+          - "'hub' in hosts_out.stdout"
+          - "'box-a' in hosts_out.stdout"
+          - "'box-b' in hosts_out.stdout"
+          - "'GENERATED' in hosts_out.stdout"
+        fail_msg: "generated hosts file incomplete — inspect /tmp/hive-ansible-test-hosts.d/hosts"

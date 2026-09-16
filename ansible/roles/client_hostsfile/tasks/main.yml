@@ -1,0 +1,18 @@
+# Role: client_hostsfile
+# Purpose: laptop ~/.hive/hosts generated from inventory (D-T2).
+# Consumes: groups['hive_hosts'], client_hostsfile_path.
+# Produces: generated hosts file on control node.
+# Ordering: localhost play.
+- name: Ensure ~/.hive exists on the client
+  ansible.builtin.file:
+    path: "{{ client_hostsfile_path | dirname }}"
+    state: directory
+    mode: "0755"
+  tags: [clienthosts]
+
+- name: Client hosts file from inventory (GENERATED)
+  ansible.builtin.template:
+    src: hosts.j2
+    dest: "{{ client_hostsfile_path }}"
+    mode: "0644"
+  tags: [clienthosts]

@@ -1,0 +1,87 @@
+# Role: hive_hub
+# Purpose: hive-hub binary, generated hosts file, systemd user unit.
+# Consumes: hive_bin_dir, hive_home, hive_hub_port, hive_bind (optional).
+# Produces: hive-hub.service, ~/.hive/hosts on hub.
+# Ordering: after hive_build on hub host.
+- name: Install hive-hub binary to stable path
+  ansible.builtin.copy:
+    src: "{{ hive_checkout_dir }}/target/release/hive-hub"
+    dest: "{{ hive_bin_dir }}/hive-hub"
+    mode: "0755"
+    remote_src: true
+  register: hive_hub_binary
+  tags: [hub]
+
+- name: Symlink hive-hub for manual debugging
+  ansible.builtin.file:
+    src: "{{ hive_bin_dir }}/hive-hub"
+    dest: "{{ ansible_facts.env.HOME }}/.local/bin/hive-hub"
+    state: link
+    force: true
+  tags: [hub]
+
+- name: Gather Tailscale poll addresses for fleet hosts
+  ansible.builtin.command: tailscale ip -4
+  delegate_to: "{{ item }}"
+  loop: "{{ groups['hive_hosts'] }}"
+  register: hive_poll_addrs
+  changed_when: false
+  check_mode: false
+  failed_when: false
+  tags: [hub]
+
+- name: Build fleet poll address map for hub hosts file
+  ansible.builtin.set_fact:
+    hive_poll_map: "{{ hive_poll_map | default({}) | combine({ item.item: item.stdout_lines[0] }) }}"
+  loop: "{{ hive_poll_addrs.results }}"
+  when: item.stdout_lines | default([]) | length > 0
+  tags: [hub]
+
+- name: Hub hosts file from inventory (GENERATED)
+  ansible.builtin.template:
+    src: hosts.j2
+    dest: "{{ hive_home }}/hosts"
+    mode: "0644"
+  tags: [hub]
+
+- name: Resolve Tailscale IPv4 bind address for hub
+  ansible.builtin.command: tailscale ip -4
+  register: hive_hub_tailscale_ip
+  changed_when: false
+  check_mode: false
+  failed_when: hive_hub_tailscale_ip.stdout_lines | length == 0
+  when: hive_bind is not defined
+  tags: [hub]
+
+- name: Set effective hive-hub bind address
+  ansible.builtin.set_fact:
+    hive_hub_bind_effective: >-
+      {{ hive_bind if hive_bind is defined else hive_hub_tailscale_ip.stdout_lines[0] }}
+  tags: [hub]
+
+- name: hive-hub install (systemd user unit)
+  ansible.builtin.command:
+    cmd: >-
+      {{ hive_bin_dir }}/hive-hub install
+      --bin {{ hive_bin_dir }}/hive-hub
+      --home {{ hive_home }}
+      --bind {{ hive_hub_bind_effective }}
+      --port {{ hive_hub_port }}
+  changed_when: false
+  tags: [hub]
+
+- name: Restart hive-hub when binary updated
+  ansible.builtin.systemd:
+    name: hive-hub
+    state: restarted
+    scope: user
+  when: hive_hub_binary.changed
+  tags: [hub]
+
+- name: Ensure hive-hub is active
+  ansible.builtin.systemd:
+    name: hive-hub
+    state: started
+    enabled: true
+    scope: user
+  tags: [hub]

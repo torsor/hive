@@ -1,0 +1,35 @@
+# Role: hive_checkout
+# Purpose: hive source at pinned ref under /srv/lab/hive.
+# Consumes: hive_repo_url, hive_ref, hive_checkout_dir.
+# Produces: checkout at hive_ref.
+# Ordering: after rust_toolchain.
+- name: Inspect hive checkout directory without elevation
+  ansible.builtin.stat:
+    path: "{{ hive_checkout_dir }}"
+    follow: false
+  register: hive_checkout_root
+  tags: [checkout]
+
+- name: Repair hive checkout directory metadata when needed
+  become: true
+  ansible.builtin.file:
+    path: "{{ hive_checkout_dir }}"
+    state: directory
+    owner: "{{ ansible_facts.env.USER }}"
+    group: "{{ ansible_facts.env.USER }}"
+    mode: "0755"
+  when:
+    - >-
+      not (hive_checkout_root.stat.exists | default(false))
+      or not (hive_checkout_root.stat.isdir | default(false))
+      or (hive_checkout_root.stat.pw_name | default('')) != ansible_facts.env.USER
+      or (hive_checkout_root.stat.gr_name | default('')) != ansible_facts.env.USER
+  tags: [checkout]
+
+- name: Hive checkout at pinned ref
+  ansible.builtin.git:
+    repo: "{{ hive_repo_url }}"
+    dest: "{{ hive_checkout_dir }}"
+    version: "{{ hive_ref }}"
+  register: hive_checkout_result
+  tags: [checkout]

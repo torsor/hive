@@ -1,0 +1,91 @@
+#!/bin/sh
+# Push merged code to hosts: git pull in the fleet checkout, rebuild, reinstall units.
+#
+#   hive-deploy box-a               one host
+#   hive-deploy box-a box-b         several
+#   hive-deploy --all               every host in ~/.hive/fleet/inventory.yml
+#   hive-deploy -n box-a            dry run (--check --diff)
+#   hive-deploy -K box-a box-b --tags linger   one-time: enable-linger (sudo)
+#
+# Naming a target is required. Bare `hive-deploy` prints help and exits.
+#
+# Unlike workshop timers, hive-host/hive-hub are long-running daemons — the
+# hive_host / hive_hub roles restart them when the binary changes.
+set -eu
+
+target=$0
+while [ -L "$target" ]; do
+  link=$(readlink "$target")
+  case "$link" in
+    /*) target=$link ;;
+    *)  target=$(dirname "$target")/$link ;;
+  esac
+done
+REPO_ROOT=$(cd "$(dirname "$target")/.." && pwd)
+ANSIBLE_DIR="$REPO_ROOT/ansible"
+
+if [ ! -f "$ANSIBLE_DIR/site.yml" ]; then
+  echo "hive-deploy: no ansible/site.yml under $REPO_ROOT" >&2
+  exit 1
+fi
+
+if ! command -v ansible-playbook >/dev/null 2>&1; then
+  echo "hive-deploy: ansible-playbook is not on PATH" >&2
+  exit 1
+fi
+
+if [ -z "${ANSIBLE_INVENTORY:-}" ] && [ ! -f "$HOME/.hive/fleet/inventory.yml" ]; then
+  echo "hive-deploy: no ~/.hive/fleet/inventory.yml — copy ansible/inventory.example.yml there and edit" >&2
+  exit 1
+fi
+
+show_help() { sed -n '2,/^[^#]/p' "$target" | sed -e '$d' -e 's/^# \{0,1\}//'; }
+
+TAGS="checkout,build,hive,hub"
+EXTRA=""
+HOSTS=""
+ALL=0
+
+while [ $# -gt 0 ]; do
+  case "$1" in
+    --all) ALL=1; shift ;;
+    -n|--check) EXTRA="$EXTRA --check --diff"; shift ;;
+    -K|--ask-become-pass) EXTRA="$EXTRA -K"; shift ;;
+    -h|--help) show_help; exit 0 ;;
+    --tags)
+      shift
+      if [ $# -eq 0 ]; then
+        echo "hive-deploy: --tags requires a value (e.g. linger)" >&2
+        exit 1
+      fi
+      TAGS=$1
+      shift
+      ;;
+    -*) EXTRA="$EXTRA $1"; shift ;;
+    *) HOSTS="${HOSTS:+$HOSTS,}$1"; shift ;;
+  esac
+done
+
+if [ -z "$HOSTS" ] && [ "$ALL" != 1 ]; then
+  show_help
+  echo "hive-deploy: name a host, or --all for the whole fleet." >&2
+  exit 1
+fi
+LIMIT="${HOSTS:-hive_hosts}"
+
+echo "deploy: $REPO_ROOT --limit $LIMIT --tags $TAGS${EXTRA:+ $EXTRA}"
+cd "$ANSIBLE_DIR"
+# shellcheck disable=SC2086
+ansible-playbook site.yml --limit "$LIMIT" --tags "$TAGS" $EXTRA
+
+cat <<'NOTE'
+
+Deployed. Confirm from the laptop:
+
+    hive status
+    ssh HOST 'systemctl --user is-active hive-host'
+
+Hub:
+
+    ssh HUB 'systemctl --user is-active hive-hub'
+NOTE

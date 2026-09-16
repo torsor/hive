@@ -1,0 +1,94 @@
+# Role: hive_host
+# Purpose: install hive-host binary + systemd user unit.
+# Consumes: hive_bin_dir, hive_home, hive_host_port, hive_bind (optional).
+# Produces: {{ hive_bin_dir }}/hive-host, hive-host.service active.
+# Ordering: after hive_build.
+- name: Ensure stable bin directory
+  ansible.builtin.file:
+    path: "{{ hive_bin_dir }}"
+    state: directory
+    mode: "0755"
+  tags: [hive]
+
+- name: Ensure HIVE_HOME layout
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    mode: "0755"
+  loop:
+    - "{{ hive_home }}"
+    - "{{ hive_home }}/sessions"
+  tags: [hive]
+
+- name: Install hive-host binary to stable path
+  ansible.builtin.copy:
+    src: "{{ hive_checkout_dir }}/target/release/hive-host"
+    dest: "{{ hive_bin_dir }}/hive-host"
+    mode: "0755"
+    remote_src: true
+  register: hive_host_binary
+  tags: [hive]
+
+- name: Ensure ~/.local/bin exists
+  ansible.builtin.file:
+    path: "{{ ansible_facts.env.HOME }}/.local/bin"
+    state: directory
+    mode: "0755"
+  tags: [hive]
+
+- name: Symlink hive-host for manual debugging
+  ansible.builtin.file:
+    src: "{{ hive_bin_dir }}/hive-host"
+    dest: "{{ ansible_facts.env.HOME }}/.local/bin/hive-host"
+    state: link
+    force: true
+  tags: [hive]
+
+- name: Resolve Tailscale IPv4 bind address
+  ansible.builtin.command: tailscale ip -4
+  register: hive_tailscale_ip
+  changed_when: false
+  check_mode: false
+  failed_when: hive_tailscale_ip.stdout_lines | length == 0
+  when: hive_bind is not defined
+  tags: [hive]
+
+- name: Set effective hive-host bind address
+  ansible.builtin.set_fact:
+    hive_bind_effective: >-
+      {{ hive_bind if hive_bind is defined else hive_tailscale_ip.stdout_lines[0] }}
+  tags: [hive]
+
+- name: Enable linger for operator (hive-host survives without login session)
+  become: true
+  ansible.builtin.command:
+    cmd: loginctl enable-linger {{ ansible_user_id }}
+  changed_when: false
+  tags: [linger]
+
+- name: hive-host install (systemd user unit)
+  ansible.builtin.command:
+    cmd: >-
+      {{ hive_bin_dir }}/hive-host install
+      --bin {{ hive_bin_dir }}/hive-host
+      --home {{ hive_home }}
+      --bind {{ hive_bind_effective }}
+      --port {{ hive_host_port }}
+  changed_when: false
+  tags: [hive]
+
+- name: Restart hive-host when binary updated
+  ansible.builtin.systemd:
+    name: hive-host
+    state: restarted
+    scope: user
+  when: hive_host_binary.changed
+  tags: [hive]
+
+- name: Ensure hive-host is active
+  ansible.builtin.systemd:
+    name: hive-host
+    state: started
+    enabled: true
+    scope: user
+  tags: [hive]

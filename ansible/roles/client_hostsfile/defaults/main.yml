@@ -1,0 +1,1 @@
+client_hostsfile_path: "{{ ansible_facts.env.HOME }}/.hive/hosts"

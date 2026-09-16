@@ -1,0 +1,7 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "hive-panel-main",
+  "description": "Main window: hub HTTP commands and native dialogs.",
+  "windows": ["main"],
+  "permissions": ["core:default", "dialog:default"]
+}
