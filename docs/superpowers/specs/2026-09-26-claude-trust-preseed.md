@@ -1,9 +1,29 @@
 # Pre-seed Claude Code's folder trust before a detached launch
 
 **Date:** 2026-09-26
-**Status:** request, for implementation in `hive-host`
+**Status:** deferred — do not implement
 **Found during:** the research-room hand run on vader (room-repo,
 `docs/superpowers/notes/2026-09-22-hand-run-vader.md`, step 7)
+
+## Decision (2026-09-26)
+
+Thrown out for now. The startup prompt is real, and this file edit is not
+the fix.
+
+`hasTrustDialogAccepted` is Claude's check that a directory may supply the
+user's Claude process with project instructions, settings, and hooks. It
+lives in `~/.claude.json` so the repo cannot answer it. hive-host writing
+`true` answers it for the user, and the answer stays after the session ends.
+
+`spawn` would do that for whatever `dir` the client sends. The host
+canonicalizes the path and has no directory allowlist; Tailscale membership
+is the only gate. The trust key is the git root, so one subdirectory marks
+the whole repository trusted for later Claude runs, including ones hive did
+not start. A careful rewrite of the file protects the rest of
+`~/.claude.json`. It does not make the grant safe.
+
+Leave the prompt in place. A work agent should not be given this
+user-level file as context.
 
 ## Problem
 
