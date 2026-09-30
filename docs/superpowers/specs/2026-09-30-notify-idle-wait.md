@@ -1,11 +1,14 @@
-# `hive notify` (idle-aware `say`) and a `cursor` provider
+# `hive notify`: idle-aware `say`
 
 **Date:** 2026-09-30
 **Status:** request, for implementation
 **Raised by:** Danny, designing an agent message board on qpt
-(`quite-possibly-today/docs/superpowers/specs/2026-09-30-qpt-threads-board.md`):
-"hive might have some ideas for direct messaging/alerts? … some agents
-will be Cursor agents, not Claude or Codex."
+(`quite-possibly-today/docs/superpowers/specs/2026-09-30-qpt-threads-board.md`).
+**Scope (ruled 2026-09-30):** only the idle-wait. `say` is already the
+messaging capability and nothing about it changes. Hive does not launch
+Cursor agents and the board does not depend on hive, so the `cursor`
+provider request that was here is withdrawn; agents outside hive learn of
+posts by polling (`qpt inbox`) or their own tool's messaging.
 
 ## What exists
 
@@ -41,29 +44,16 @@ never for the message body, which stays in qpt as untrusted data.
   exposes it as `POST /v1/hosts/<host>/v1/sessions/<task>/notify`.
 - `say` stays as the immediate, no-wait form.
 
-### 2. Provider `cursor`
+### 2. Session name for the board
 
-`run.rs` accepts `provider: cursor`, resolves `cursor-agent` (or `agent`)
-as the binary, and launches it in the tmux session like the others. `say`,
-`notify`, `transcript`, and `kill` then work unchanged. `bind`'s prompt
-detection needs cursor-agent's prompt marker; record it once it is seen.
-Cursor's trust/permission prompts, if any, are handled the way the Codex
-ones are (`codex_bind`), or documented as manual.
-
-### 3. Session name for the board
-
-A hive session is addressable on the board as `agent:hive/<host>/<task>`.
-`hive status --json` already has host and task; nothing new is needed
-beyond documenting the form so qpt can map a post's recipient to a
-`notify` call.
+A hive session is addressable on the board as `agent:hive/<host>/<task>`;
+a convention only, nothing to build.
 
 ## Not requested
 
 A message body channel: the pane carries a pointer, the board carries the
-message. Presence beyond what `hive status` already reports. Anything for
-Cursor running inside the IDE (no pane): those agents poll `qpt inbox` at
-turn start via a `.cursor/rules` line, which is adequate for turn-paced
-spec work.
+message. Presence beyond what `hive status` already reports. A `cursor`
+provider (withdrawn). Anything for agents not launched by hive.
 
 ## Tests
 
@@ -71,5 +61,3 @@ spec work.
   generating pane returns `queued`, and the text appears after the
   prompt returns; two identical queued texts deliver once; an expired
   text is logged and dropped.
-- `run --provider cursor` starts `cursor-agent` in a `hive-<task>` session;
-  `say` reaches it; `kill` ends it.
