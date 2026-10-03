@@ -49,6 +49,8 @@ pub enum Cmd {
         host: String,
         task: String,
         op: String,
+        #[arg(long)]
+        tag: Option<String>,
     },
     Run {
         host: String,
@@ -58,6 +60,8 @@ pub enum Cmd {
         provider: Option<String>,
         #[arg(long)]
         resume: bool,
+        #[arg(long, value_delimiter = ',')]
+        tags: Vec<String>,
         extra: Vec<String>,
     },
     Transcript {
@@ -311,8 +315,10 @@ async fn client_cmd(cmd: Cmd, home: &HiveHome) -> Result<()> {
             let out = client.session_action(&host, &task, "kill").await?;
             println!("{}", out.output);
         }
-        Cmd::Label { host, task, op } => {
-            let out = client.label(&host, &task, &op).await?;
+        Cmd::Label { host, task, op, tag } => {
+            let out = client
+                .label(&host, &task, &op, tag.as_deref())
+                .await?;
             println!("{}", out.output);
         }
         Cmd::Run {
@@ -321,6 +327,7 @@ async fn client_cmd(cmd: Cmd, home: &HiveHome) -> Result<()> {
             dir,
             provider,
             resume,
+            tags,
             extra,
         } => {
             let out = client
@@ -333,6 +340,7 @@ async fn client_cmd(cmd: Cmd, home: &HiveHome) -> Result<()> {
                         extra_args: extra,
                         auto: false,
                         resume,
+                        tags,
                     },
                 )
                 .await?;

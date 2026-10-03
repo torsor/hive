@@ -15,6 +15,7 @@ export function flattenFleet(fleet: Fleet): FlatSessionRow[] {
         error: h.error,
         actionable: false,
         starred: false,
+        tags: [],
       });
       continue;
     }
@@ -30,6 +31,7 @@ export function flattenFleet(fleet: Fleet): FlatSessionRow[] {
         error: null,
         actionable: false,
         starred: false,
+        tags: [],
       });
       continue;
     }
@@ -45,6 +47,7 @@ export function flattenFleet(fleet: Fleet): FlatSessionRow[] {
         error: h.error ?? null,
         actionable: true,
         starred: Boolean(s.starred),
+        tags: Array.isArray(s.tags) ? s.tags.map(String) : [],
       });
     }
   }

@@ -275,18 +275,25 @@ async fn label_handler(
         return err(StatusCode::NOT_FOUND, "not_found", format!("no session {task}"))
             .into_response();
     }
-    let starred = match req.op.as_str() {
-        "star" => true,
-        "unstar" => false,
-        _ => {
-            return err(StatusCode::BAD_REQUEST, "bad_op", "op must be star or unstar")
-                .into_response()
-        }
+    let path = sessions::labels_path(&app.home, &task);
+    let out = match req.op.as_str() {
+        "star" => labels::set_starred(&path, true).map(|_| "starred".into()),
+        "unstar" => labels::set_starred(&path, false).map(|_| "unstarred".into()),
+        "tag-add" => match req.tag.as_deref() {
+            Some(tag) => labels::add_tag(&path, tag).map(|l| format!("tags: {}", l.tags.join(","))),
+            None => Err("tag required for tag-add".into()),
+        },
+        "tag-remove" => match req.tag.as_deref() {
+            Some(tag) => {
+                labels::remove_tag(&path, tag).map(|l| format!("tags: {}", l.tags.join(",")))
+            }
+            None => Err("tag required for tag-remove".into()),
+        },
+        _ => Err("op must be star, unstar, tag-add, or tag-remove".into()),
     };
-    match labels::set_starred(&sessions::labels_path(&app.home, &task), starred) {
-        Ok(l) => Json(OkOutput::new(if l.starred { "starred" } else { "unstarred" }))
-            .into_response(),
-        Err(e) => err(StatusCode::INTERNAL_SERVER_ERROR, "label_failed", e).into_response(),
+    match out {
+        Ok(msg) => Json(OkOutput::new(msg)).into_response(),
+        Err(e) => err(StatusCode::BAD_REQUEST, "label_failed", e).into_response(),
     }
 }
 

@@ -3,6 +3,7 @@ use uuid::Uuid;
 
 use hive_common::{ensure_dir, resolve_provider_bin, validate_task_name, HiveHome};
 use crate::codex_bind;
+use crate::labels;
 use crate::meta;
 use crate::sessions;
 use crate::tmux;
@@ -89,6 +90,10 @@ pub fn spawn(home: &HiveHome, req: &SpawnRequest) -> Result<String, String> {
         ],
     )
     .map_err(|e| e.to_string())?;
+    if !req.tags.is_empty() {
+        let labels_path = sessions::labels_path(home, task);
+        labels::set_tags(&labels_path, req.tags.clone()).map_err(|e| e.to_string())?;
+    }
     tmux::new_session(&tmux_name, &dir.to_string_lossy(), &cmd)?;
     if provider == "codex" {
         codex_bind::schedule_codex_rename(tmux_name.clone(), task.to_string(), meta_path);

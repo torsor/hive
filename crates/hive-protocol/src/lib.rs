@@ -67,6 +67,8 @@ pub struct SessionRow {
     pub provider: String,
     #[serde(default)]
     pub starred: bool,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub tags: Vec<String>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub tmux: Option<String>,
 }
@@ -134,6 +136,8 @@ pub struct SpawnRequest {
     pub auto: bool,
     #[serde(default)]
     pub resume: bool,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub tags: Vec<String>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -144,6 +148,8 @@ pub struct SayRequest {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct LabelRequest {
     pub op: String,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub tag: Option<String>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

@@ -27,6 +27,20 @@ fn list_sessions_reads_hive_labels_sidecar() {
     assert_eq!(rows[0].task, "demo");
     assert!(rows[0].starred);
 
+    std::fs::write(
+        home.sessions_dir().join("tagged.meta"),
+        "task='tagged'\ndir='/tmp'\ntmux='hive-tagged'\nprovider='claude'\n",
+    )
+    .unwrap();
+    std::fs::write(
+        home.sessions_dir().join("tagged.labels"),
+        "{\"starred\":false,\"tags\":[\"room\",\"evaluation\"]}\n",
+    )
+    .unwrap();
+    let rows = hive_host::sessions::list_sessions(&home);
+    let tagged = rows.iter().find(|r| r.task == "tagged").unwrap();
+    assert_eq!(tagged.tags, vec!["room", "evaluation"]);
+
     let _ = std::fs::remove_dir_all(dir);
 }
 

@@ -14,6 +14,7 @@ function row(partial: Partial<FlatSessionRow> = {}): FlatSessionRow {
     error: null,
     actionable: true,
     starred: false,
+    tags: [],
     ...partial,
   };
 }

@@ -9,6 +9,7 @@ export type SessionRow = {
   last?: string | null;
   provider?: string;
   starred?: boolean;
+  tags?: string[];
   tmux?: string | null;
 };
 
@@ -98,6 +99,7 @@ export type FlatSessionRow = {
   error: string | null;
   actionable: boolean;
   starred: boolean;
+  tags: string[];
 };
 
 export type ConfigView = {
@@ -118,5 +120,7 @@ export type Filters = {
   states: string[];
   hosts: string[];
   providers: string[];
+  tags: string[];
   starredOnly: boolean;
+  showHidden: boolean;
 };

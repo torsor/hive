@@ -51,16 +51,34 @@ function loadTheme(): Theme {
 function loadFilters(): Filters {
   try {
     const raw = localStorage.getItem(FILTERS_KEY);
-    if (!raw) return { states: [], hosts: [], providers: [], starredOnly: false };
+    if (!raw) {
+      return {
+        states: [],
+        hosts: [],
+        providers: [],
+        tags: [],
+        starredOnly: false,
+        showHidden: false,
+      };
+    }
     const parsed = JSON.parse(raw) as Partial<Filters>;
     return {
       states: Array.isArray(parsed.states) ? parsed.states.map(String) : [],
       hosts: Array.isArray(parsed.hosts) ? parsed.hosts.map(String) : [],
       providers: Array.isArray(parsed.providers) ? parsed.providers.map(String) : [],
+      tags: Array.isArray(parsed.tags) ? parsed.tags.map(String) : [],
       starredOnly: parsed.starredOnly === true,
+      showHidden: parsed.showHidden === true,
     };
   } catch {
-    return { states: [], hosts: [], providers: [], starredOnly: false };
+    return {
+      states: [],
+      hosts: [],
+      providers: [],
+      tags: [],
+      starredOnly: false,
+      showHidden: false,
+    };
   }
 }
 
@@ -104,7 +122,14 @@ function toggleInList(list: string[], value: string): string[] {
   return list.includes(value) ? list.filter((v) => v !== value) : [...list, value];
 }
 
+function rowTags(row: FlatSessionRow): string[] {
+  return row.tags ?? [];
+}
+
 function matchesFilters(row: FlatSessionRow, filters: Filters): boolean {
+  if (!filters.showHidden && rowTags(row).includes("hidden")) {
+    return false;
+  }
   if (filters.states.length > 0 && !filters.states.includes(rowStateKey(row))) {
     return false;
   }
@@ -112,6 +137,9 @@ function matchesFilters(row: FlatSessionRow, filters: Filters): boolean {
     return false;
   }
   if (filters.providers.length > 0 && !filters.providers.includes(rowProvider(row))) {
+    return false;
+  }
+  if (filters.tags.length > 0 && !filters.tags.some((t) => rowTags(row).includes(t))) {
     return false;
   }
   if (filters.starredOnly && !row.starred) {
@@ -125,7 +153,9 @@ function filterSummary(filters: Filters): string {
   if (filters.states.length) parts.push(filters.states.join(", "));
   if (filters.hosts.length) parts.push(filters.hosts.join(", "));
   if (filters.providers.length) parts.push(filters.providers.join(", "));
+  if (filters.tags.length) parts.push(`tags: ${filters.tags.join(", ")}`);
   if (filters.starredOnly) parts.push("starred");
+  if (filters.showHidden) parts.push("incl. hidden");
   return parts.length ? `Filters: ${parts.join(" · ")}` : "Filters: all";
 }
 
@@ -225,6 +255,13 @@ function TaskIdentity({
           {row.provider}
         </span>
       ) : null}
+      {rowTags(row)
+        .filter((t) => t !== "hidden")
+        .map((t) => (
+          <span key={t} className="tag-badge mono" title={`tag: ${t}`}>
+            {t}
+          </span>
+        ))}
     </div>
   );
 }
@@ -416,6 +453,14 @@ function App() {
 
   const providerOptions = useMemo(
     () => uniqueSorted(rows.filter((r) => r.actionable).map(rowProvider)),
+    [rows],
+  );
+
+  const tagOptions = useMemo(
+    () =>
+      uniqueSorted(
+        rows.filter((r) => r.actionable).flatMap((r) => rowTags(r).filter((t) => t !== "hidden")),
+      ),
     [rows],
   );
 
@@ -707,11 +752,27 @@ function App() {
                 }
               />
               <FilterChips
+                label="Tags"
+                options={tagOptions}
+                selected={filters.tags}
+                onToggle={(value) =>
+                  setFilters((f) => ({ ...f, tags: toggleInList(f.tags, value) }))
+                }
+              />
+              <FilterChips
                 label="Starred"
                 options={["starred"]}
                 selected={filters.starredOnly ? ["starred"] : []}
                 onToggle={() =>
                   setFilters((f) => ({ ...f, starredOnly: !f.starredOnly }))
+                }
+              />
+              <FilterChips
+                label="Hidden"
+                options={["show hidden"]}
+                selected={filters.showHidden ? ["show hidden"] : []}
+                onToggle={() =>
+                  setFilters((f) => ({ ...f, showHidden: !f.showHidden }))
                 }
               />
             </div>
