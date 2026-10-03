@@ -111,9 +111,9 @@ pub async fn session_action(host: &str, task: &str, verb: &str) -> Result<String
     Ok(out.output)
 }
 
-pub async fn label(host: &str, task: &str, op: &str) -> Result<String, String> {
+pub async fn label(host: &str, task: &str, op: &str, tag: Option<String>) -> Result<String, String> {
     let out = client()?
-        .label(host, task, op)
+        .label(host, task, op, tag.as_deref())
         .await
         .map_err(|e| e.to_string())?;
     Ok(out.output)

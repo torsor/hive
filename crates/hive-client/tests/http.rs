@@ -50,6 +50,7 @@ async fn fleet_parses() {
                 last: None,
                 provider: "claude".into(),
                 starred: false,
+                tags: vec![],
                 tmux: None,
             }],
         }],
@@ -87,6 +88,7 @@ async fn local_fetch_fleet_uses_sessions() {
             last: None,
             provider: "claude".into(),
             starred: false,
+            tags: vec![],
             tmux: None,
         }]))
         .mount(&server)

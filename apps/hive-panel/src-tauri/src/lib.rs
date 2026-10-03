@@ -86,8 +86,13 @@ async fn restart_session(host: String, task: String) -> Result<String, String> {
 }
 
 #[tauri::command]
-async fn label_session(host: String, task: String, op: String) -> Result<String, String> {
-    hub::label(&host, &task, &op).await
+async fn label_session(
+    host: String,
+    task: String,
+    op: String,
+    tag: Option<String>,
+) -> Result<String, String> {
+    hub::label(&host, &task, &op, tag).await
 }
 
 #[tauri::command]

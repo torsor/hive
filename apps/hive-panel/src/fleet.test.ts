@@ -54,4 +54,23 @@ describe("flattenFleet", () => {
     expect(rows[0].task).toBe("demo");
     expect(rows[0].starred).toBe(true);
   });
+
+  it("passes session tags through", () => {
+    const fleet: Fleet = {
+      generated_at: "2026-01-01T00:00:00Z",
+      hosts: [
+        {
+          host: "hub",
+          sessions: [
+            {
+              task: "trial-a",
+              state: "running",
+              tags: ["room", "evaluation"],
+            },
+          ],
+        },
+      ],
+    };
+    expect(flattenFleet(fleet)[0].tags).toEqual(["room", "evaluation"]);
+  });
 });

@@ -54,7 +54,7 @@ pub fn list_sessions(home: &HiveHome) -> Vec<SessionRow> {
         } else {
             None
         };
-        let starred = labels::load(&path.with_extension("labels")).starred;
+        let sidecar = labels::load(&path.with_extension("labels"));
         rows.push(SessionRow {
             host: None,
             task,
@@ -71,7 +71,8 @@ pub fn list_sessions(home: &HiveHome) -> Vec<SessionRow> {
                 .cloned()
                 .filter(|s| !s.is_empty())
                 .unwrap_or_else(|| "claude".into()),
-            starred,
+            starred: sidecar.starred,
+            tags: sidecar.tags,
             tmux: Some(resolved),
         });
     }

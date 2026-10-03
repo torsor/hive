@@ -107,7 +107,13 @@ impl Client {
         post_json(&self.http, &url, &serde_json::json!({})).await
     }
 
-    pub async fn label(&self, host: &str, task: &str, op: &str) -> Result<OkOutput, Error> {
+    pub async fn label(
+        &self,
+        host: &str,
+        task: &str,
+        op: &str,
+        tag: Option<&str>,
+    ) -> Result<OkOutput, Error> {
         let task = encode::path_segment(task);
         let url = self
             .endpoints
@@ -115,7 +121,10 @@ impl Client {
         post_json(
             &self.http,
             &url,
-            &LabelRequest { op: op.to_string() },
+            &LabelRequest {
+                op: op.to_string(),
+                tag: tag.map(str::to_string),
+            },
         )
         .await
     }
