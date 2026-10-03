@@ -65,6 +65,7 @@ async fn spawn_session_cmd(args: SpawnArgs) -> Result<String, String> {
             extra_args: extra,
             auto: args.auto,
             resume: false,
+            tags: vec![],
         },
     )
     .await
@@ -120,6 +121,7 @@ async fn attach_session(host: String, task: String, resume: bool) -> Result<Stri
                 extra_args: vec![],
                 auto: false,
                 resume: true,
+                tags: vec![],
             },
         )
         .await?;
