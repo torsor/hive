@@ -1,6 +1,6 @@
 import { useEffect, useId, useRef, useState } from "react";
 import type { FlatSessionRow } from "./types";
-import { normalizeTagInput, TAG_PRESETS, tagsAfterAdd, tagsAfterRemove } from "./sessionTags";
+import { normalizeTagInput, TAG_PRESETS } from "./sessionTagUtils";
 
 type SessionTagsProps = {
   row: FlatSessionRow;
@@ -176,5 +176,3 @@ export function SessionTags({ row, suggested, onTagAdd, onTagRemove }: SessionTa
     </div>
   );
 }
-
-export { tagsAfterAdd, tagsAfterRemove };

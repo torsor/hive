@@ -14,7 +14,8 @@ import {
   type SessionAction,
 } from "./fleetView";
 import { SpawnDialog } from "./SpawnDialog";
-import { SessionTags, tagsAfterAdd, tagsAfterRemove } from "./SessionTags";
+import { SessionTags } from "./SessionTags";
+import { tagsAfterAdd, tagsAfterRemove } from "./sessionTagUtils";
 import type { ConfigView, Filters, FlatSessionRow, Fleet, Theme } from "./types";
 import "./styles.css";
 
