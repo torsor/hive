@@ -202,7 +202,11 @@ pub fn run(home: &HiveHome, cmd: LocalCmd) -> Result<()> {
                 };
                 println!("{}", serde_json::to_string_pretty(&filtered)?);
             } else if agents.is_empty() {
-                println!("(no matching local agents)");
+                if doc.agents.is_empty() && tag.is_empty() {
+                    println!("(no local agents — use `hive local add` or `hive local register`)");
+                } else {
+                    println!("(no matching local agents)");
+                }
             } else {
                 println!("{:<20}  {}  {}", "ID", "TITLE", "TAGS");
                 for a in agents {

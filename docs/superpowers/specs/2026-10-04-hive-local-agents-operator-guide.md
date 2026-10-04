@@ -56,7 +56,7 @@ Use **`register`**, not **`add`**, so restarts update the row without errors.
 
 1. Build or install a `hive` binary that includes `hive local` (see plan).
 2. `hive local list --tag my-team` — confirm rows exist (if empty, register manually or wake agents once).
-3. `hive local open-group --tag my-team --launch` — one Terminal window per agent, each runs `cd <cwd> && <resume>`.
+3. For each row (or loop): `hive local open <id>` — run the printed `cd … && …` in your shell (or use panel **Open**). Skip `--launch` if you do not want extra Terminal.app windows.
 4. In each **Cursor** window, open the chat named in **`notes`** / **`title`**.
 5. Remote fleet: unchanged — panel **Refresh** or `hive status` for box sessions.
 
@@ -80,6 +80,33 @@ Filter logic:
 ## Panel (when shipped)
 
 Same file (`~/.hive/local-agents.json`). **Local** section below fleet; **Open** / **Open group** use your configured terminal (iTerm/Ghostty/etc.), not only Terminal.app.
+
+## Paste to agents when you wake them
+
+Copy this into the first message when bringing a team agent back (fill in ALL CAPS):
+
+```markdown
+Please register on Dan's laptop hive local registry (one shot after you're in the right repo):
+
+  hive local register \
+    --id YOUR-ID \
+    --title "SHORT LABEL" \
+    --cwd "$PWD" \
+    --resume 'cursor .' \
+    --provider cursor \
+    --agentmsg agent:YOUR-ID \
+    --tags laptop,my-team \
+    --notes 'Which Cursor chat to reopen'
+
+Rules:
+- YOUR-ID = board slug without "agent:" (e.g. my-agent, agent-two).
+- Run from the project root you work in; cwd must exist.
+- Use register (not add) so you can run it again later to refresh paths.
+- Dan restores the cohort with: hive local list --tag my-team
+  then runs the printed open lines (no --launch). Panel: Local → Open group.
+
+Operator guide: hive-repo docs/superpowers/specs/2026-10-04-hive-local-agents-operator-guide.md
+```
 
 ## Troubleshooting
 
