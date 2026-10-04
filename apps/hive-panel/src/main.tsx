@@ -14,6 +14,7 @@ import {
   type SessionAction,
 } from "./fleetView";
 import { SpawnDialog } from "./SpawnDialog";
+import { SessionTags, tagsAfterAdd, tagsAfterRemove } from "./SessionTags";
 import type { ConfigView, Filters, FlatSessionRow, Fleet, Theme } from "./types";
 import "./styles.css";
 
@@ -231,10 +232,16 @@ const ACTION_META: Record<
 
 function TaskIdentity({
   row,
+  tagSuggestions,
   onToggleStar,
+  onTagAdd,
+  onTagRemove,
 }: {
   row: FlatSessionRow;
+  tagSuggestions: string[];
   onToggleStar: (row: FlatSessionRow) => void;
+  onTagAdd: (row: FlatSessionRow, tag: string) => Promise<void>;
+  onTagRemove: (row: FlatSessionRow, tag: string) => Promise<void>;
 }) {
   return (
     <div className="task-cell">
@@ -255,13 +262,12 @@ function TaskIdentity({
           {row.provider}
         </span>
       ) : null}
-      {rowTags(row)
-        .filter((t) => t !== "hidden")
-        .map((t) => (
-          <span key={t} className="tag-badge mono" title={`tag: ${t}`}>
-            {t}
-          </span>
-        ))}
+      <SessionTags
+        row={row}
+        suggested={tagSuggestions}
+        onTagAdd={onTagAdd}
+        onTagRemove={onTagRemove}
+      />
     </div>
   );
 }
@@ -457,10 +463,7 @@ function App() {
   );
 
   const tagOptions = useMemo(
-    () =>
-      uniqueSorted(
-        rows.filter((r) => r.actionable).flatMap((r) => rowTags(r).filter((t) => t !== "hidden")),
-      ),
+    () => uniqueSorted(rows.filter((r) => r.actionable).flatMap((r) => rowTags(r))),
     [rows],
   );
 
@@ -546,6 +549,68 @@ function App() {
       setFooterTone("error");
       setFooter(String(e));
       scheduleFooterToneReset();
+    }
+  }
+
+  async function onTagAdd(row: FlatSessionRow, tag: string) {
+    const prev = row.tags ?? [];
+    const next = tagsAfterAdd(prev, tag);
+    setRows((rs) =>
+      rs.map((r) =>
+        r.host === row.host && r.task === row.task ? { ...r, tags: next } : r,
+      ),
+    );
+    try {
+      await invoke("label_session", {
+        host: row.host,
+        task: row.task,
+        op: "tag-add",
+        tag,
+      });
+      setFooterTone("success");
+      setFooter(`tag +${tag} on ${row.host}/${row.task}`);
+      scheduleFooterToneReset();
+    } catch (e) {
+      setRows((rs) =>
+        rs.map((r) =>
+          r.host === row.host && r.task === row.task ? { ...r, tags: prev } : r,
+        ),
+      );
+      setFooterTone("error");
+      setFooter(String(e));
+      scheduleFooterToneReset();
+      throw e;
+    }
+  }
+
+  async function onTagRemove(row: FlatSessionRow, tag: string) {
+    const prev = row.tags ?? [];
+    const next = tagsAfterRemove(prev, tag);
+    setRows((rs) =>
+      rs.map((r) =>
+        r.host === row.host && r.task === row.task ? { ...r, tags: next } : r,
+      ),
+    );
+    try {
+      await invoke("label_session", {
+        host: row.host,
+        task: row.task,
+        op: "tag-remove",
+        tag,
+      });
+      setFooterTone("success");
+      setFooter(`tag −${tag} on ${row.host}/${row.task}`);
+      scheduleFooterToneReset();
+    } catch (e) {
+      setRows((rs) =>
+        rs.map((r) =>
+          r.host === row.host && r.task === row.task ? { ...r, tags: prev } : r,
+        ),
+      );
+      setFooterTone("error");
+      setFooter(String(e));
+      scheduleFooterToneReset();
+      throw e;
     }
   }
 
@@ -790,7 +855,13 @@ function App() {
             {tileRows.map((row, index) => (
               <li key={`${row.host}-${row.task}-${index}`} className="session-tile">
                 <div className="tile-top">
-                  <TaskIdentity row={row} onToggleStar={onToggleStar} />
+                  <TaskIdentity
+                    row={row}
+                    tagSuggestions={tagOptions}
+                    onToggleStar={onToggleStar}
+                    onTagAdd={onTagAdd}
+                    onTagRemove={onTagRemove}
+                  />
                   <span className={stateBadgeClass(row.state, row.error)}>
                     {row.error && !row.actionable ? "unreachable" : row.state}
                   </span>
@@ -844,7 +915,13 @@ function App() {
                       </span>
                     </td>
                     <td>
-                      <TaskIdentity row={row} onToggleStar={onToggleStar} />
+                      <TaskIdentity
+                        row={row}
+                        tagSuggestions={tagOptions}
+                        onToggleStar={onToggleStar}
+                        onTagAdd={onTagAdd}
+                        onTagRemove={onTagRemove}
+                      />
                     </td>
                     <td title={row.error && !row.actionable ? row.error : undefined}>
                       {row.error && !row.actionable
