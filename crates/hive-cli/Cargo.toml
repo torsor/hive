@@ -20,6 +20,7 @@ hive-common.workspace = true
 hive-client.workspace = true
 hive-host = { path = "../hive-host" }
 hive-hub = { path = "../hive-hub" }
+hive-local-agents = { path = "../hive-local-agents" }
 serde.workspace = true
 serde_json.workspace = true
 anyhow.workspace = true

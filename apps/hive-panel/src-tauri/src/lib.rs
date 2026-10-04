@@ -1,4 +1,5 @@
 mod hub;
+mod local_agents;
 mod sse;
 mod terminal;
 mod transcript_stream;
@@ -270,6 +271,12 @@ pub fn run() {
             say_to_session,
             start_transcript_stream_cmd,
             stop_transcript_stream_cmd,
+            local_agents::list_local_agents_cmd,
+            local_agents::register_local_agent_cmd,
+            local_agents::remove_local_agent_cmd,
+            local_agents::set_local_agent_cmd,
+            local_agents::open_local_agent_cmd,
+            local_agents::open_local_group_cmd,
         ])
         .run(tauri::generate_context!())
         .expect("error while running hive-panel");

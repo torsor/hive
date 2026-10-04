@@ -13,6 +13,7 @@ import {
   type FleetView,
   type SessionAction,
 } from "./fleetView";
+import { LocalAgents } from "./LocalAgents";
 import { SpawnDialog } from "./SpawnDialog";
 import { SessionTags } from "./SessionTags";
 import { tagsAfterAdd, tagsAfterRemove } from "./sessionTagUtils";
@@ -394,6 +395,20 @@ function App() {
       setFooterTone("default");
     }, 5000);
   }
+
+  const localAgentFooter = useCallback(
+    (msg: string, tone?: "success" | "error") => {
+      setFooter(msg);
+      if (tone === "success") {
+        setFooterTone("success");
+        scheduleFooterToneReset();
+      } else if (tone === "error") {
+        setFooterTone("error");
+        scheduleFooterToneReset();
+      }
+    },
+    [],
+  );
 
   const paintFleet = useCallback((fleet: Fleet) => {
     applyFleet(fleet, setRows);
@@ -847,6 +862,8 @@ function App() {
       </div>
 
       {error ? <div className="error-banner">{error}</div> : null}
+
+      <LocalAgents onFooter={localAgentFooter} />
 
       <main className="main">
         {(view === "tiles" ? tileRows : filteredRows).length === 0 && !refreshing ? (

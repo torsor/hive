@@ -8,6 +8,7 @@ members = [
     "crates/hive-hub",
     "crates/hive-web",
     "crates/hive-cli",
+    "crates/hive-local-agents",
 ]
 exclude = ["apps/hive-panel/src-tauri"]
 

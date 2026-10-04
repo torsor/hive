@@ -116,6 +116,19 @@ export type Theme =
   | "torsor-b"
   | "torsor-b-dark";
 
+/** ~/.hive/local-agents.json row (keep in sync with hive-local-agents). */
+export type LocalAgent = {
+  id: string;
+  title: string;
+  cwd: string;
+  resume: string;
+  notes?: string | null;
+  agentmsg?: string | null;
+  provider?: string | null;
+  tags?: string[];
+  updated_at: string;
+};
+
 export type Filters = {
   states: string[];
   hosts: string[];

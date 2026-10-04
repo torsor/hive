@@ -1297,6 +1297,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "hive-local-agents"
+version = "0.2.0"
+dependencies = [
+ "chrono",
+ "hive-common",
+ "serde",
+ "serde_json",
+ "thiserror 2.0.20",
+]
+
+[[package]]
 name = "hive-panel"
 version = "0.2.0"
 dependencies = [
@@ -1305,6 +1316,7 @@ dependencies = [
  "futures-util",
  "hive-client",
  "hive-common",
+ "hive-local-agents",
  "hive-protocol",
  "reqwest 0.12.28",
  "serde",

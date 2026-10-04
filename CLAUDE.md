@@ -14,6 +14,7 @@ Not the older SSH/`cc-*` toolkit — that lives elsewhere. This tree has no
 ansible-playbook ansible/site.yml -K     # fleet converge (see ansible/README.md)
 hive-deploy <host>… | --all            # day-2 code push
 hive status | say | stop | run | …     # HTTP to hub (or local host)
+hive local register|list|open-group …  # laptop bookmarks (~/.hive/local-agents.json); see docs/superpowers/specs/2026-10-04-hive-local-agents-operator-guide.md
 hive host serve|install
 hive hub serve|install
 hive-web serve                         # phone SPA local dev/smoke only (prod: http://<hub>/hive/)

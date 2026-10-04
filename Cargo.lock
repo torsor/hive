@@ -515,6 +515,7 @@ dependencies = [
  "hive-common",
  "hive-host",
  "hive-hub",
+ "hive-local-agents",
  "hive-protocol",
  "serde",
  "serde_json",
@@ -597,6 +598,17 @@ dependencies = [
  "tower",
  "tower-http",
  "wiremock",
+]
+
+[[package]]
+name = "hive-local-agents"
+version = "0.2.0"
+dependencies = [
+ "chrono",
+ "hive-common",
+ "serde",
+ "serde_json",
+ "thiserror",
 ]
 
 [[package]]

@@ -11,6 +11,9 @@ use hive_host::{Args as HostArgs, HostCmd};
 use hive_hub::{Args as HubArgs, HubCmd};
 use hive_protocol::{BindingsDoc, Fleet};
 
+mod local;
+mod local_launch;
+
 #[derive(Parser, Debug)]
 #[command(name = "hive", about = "Hive fleet CLI — talks to hive-hub or local hive-host")]
 pub struct Cli {
@@ -85,6 +88,15 @@ pub enum Cmd {
         path: Option<String>,
     },
     Panel,
+    /// Local agent bookmarks on this machine (panel Local section; not fleet tmux)
+    #[command(
+        long_about = local::LOCAL_LONG_ABOUT,
+        after_help = local::LOCAL_AFTER_HELP
+    )]
+    Local {
+        #[command(subcommand)]
+        cmd: local::LocalCmd,
+    },
     Host {
         #[command(subcommand)]
         cmd: DaemonCmd,
@@ -197,6 +209,7 @@ pub async fn run(cli: Cli) -> Result<()> {
                 bail!("hive-panel exited {st}")
             }
         }
+        Cmd::Local { cmd } => local::run(&home, cmd),
         other => client_cmd(other, &home).await,
     }
 }
@@ -388,6 +401,45 @@ mod tests {
             } => assert!(!migrate),
             _ => panic!("expected host install"),
         }
+    }
+
+    #[test]
+    fn local_open_group_empty_errors() {
+        use hive_common::HiveHome;
+        let dir = std::env::temp_dir().join(format!(
+            "hive-local-open-group-{}",
+            std::time::SystemTime::now()
+                .duration_since(std::time::UNIX_EPOCH)
+                .unwrap()
+                .as_nanos()
+        ));
+        std::fs::create_dir_all(&dir).unwrap();
+        let home = HiveHome { root: dir };
+        let err = local::run(
+            &home,
+            local::LocalCmd::OpenGroup {
+                tag: vec!["no-such-cohort".into()],
+                match_all: false,
+                launch: false,
+            },
+        )
+        .unwrap_err();
+        assert!(err.to_string().contains("no local agents match"));
+    }
+
+    #[test]
+    fn local_help_mentions_register() {
+        use clap::CommandFactory;
+        let cmd = Cli::command();
+        let local = cmd
+            .find_subcommand("local")
+            .expect("local subcommand");
+        let long = local
+            .get_long_about()
+            .expect("long_about")
+            .to_string();
+        assert!(long.contains("hive local register"));
+        assert!(long.contains("Self-registration"));
     }
 
     #[test]

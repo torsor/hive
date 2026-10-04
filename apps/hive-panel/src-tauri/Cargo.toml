@@ -19,6 +19,7 @@ tauri-build = { version = "2", features = [] }
 hive-protocol = { path = "../../../crates/hive-protocol" }
 hive-common = { path = "../../../crates/hive-common" }
 hive-client = { path = "../../../crates/hive-client" }
+hive-local-agents = { path = "../../../crates/hive-local-agents" }
 tauri = { version = "2", features = [] }
 tauri-plugin-dialog = "2"
 serde = { version = "1", features = ["derive"] }

@@ -79,6 +79,70 @@ pub fn open_shell_at(host: &str, dir: &str, label: &str, terminal: TerminalMacos
     open_attach(&argv, label, terminal)
 }
 
+/// Run `command` in a new external terminal (local laptop — no SSH).
+pub fn open_zsh_command(command: &str, label: &str, terminal: TerminalMacos) -> Result<()> {
+    #[cfg(target_os = "macos")]
+    {
+        return open_macos_zsh(command, label, terminal);
+    }
+    #[cfg(not(target_os = "macos"))]
+    {
+        let _ = (label, terminal);
+        let st = std::process::Command::new("/bin/zsh")
+            .args(["-c", command])
+            .spawn()
+            .context("spawn local zsh")?;
+        let _ = st;
+        Ok(())
+    }
+}
+
+#[cfg(target_os = "macos")]
+fn open_macos_zsh(command: &str, label: &str, terminal: TerminalMacos) -> Result<()> {
+    let inner = applescript_escape(command);
+    let label = applescript_escape(label);
+    let cmd_setup = format!(
+        r#"set attachLabel to "{label}"
+set theCommand to "{inner}"
+set shellCommand to "/bin/zsh -c " & quoted form of theCommand"#
+    );
+    match terminal {
+        TerminalMacos::AppleTerminal => run_osascript(&format!(
+            r#"{cmd_setup}
+tell application "Terminal"
+  activate
+  do script shellCommand
+  set custom title of front window to attachLabel
+end tell"#
+        ))
+        .context("Terminal.app")?,
+        TerminalMacos::Iterm2 => run_osascript(&format!(
+            r#"{cmd_setup}
+tell application "iTerm"
+  activate
+  create window with default profile command shellCommand
+end tell"#
+        ))
+        .context("iTerm2")?,
+        TerminalMacos::Ghostty | TerminalMacos::Warp => {
+            let shell_cmd = format!("/bin/zsh -c {}", shell_quote(command));
+            let app = match terminal {
+                TerminalMacos::Ghostty => "Ghostty",
+                TerminalMacos::Warp => "Warp",
+                _ => unreachable!(),
+            };
+            let st = std::process::Command::new("open")
+                .args(["-na", app, "--args", "-e", &shell_cmd])
+                .status()
+                .with_context(|| format!("open {app}"))?;
+            if !st.success() {
+                anyhow::bail!("open {app} failed");
+            }
+        }
+    }
+    Ok(())
+}
+
 fn applescript_escape(s: &str) -> String {
     s.replace('\\', "\\\\").replace('"', "\\\"")
 }
