@@ -1,9 +1,10 @@
 # Local agent registry (panel + CLI)
 
 **Date:** 2026-10-04  
-**Status:** approved (Dan); CLI + library partial; panel Local UI pending  
+**Status:** shipped (CLI + panel Local); evolution tracked in agent registration boundary spec  
 **Operator guide (how-to):** [2026-10-04-hive-local-agents-operator-guide.md](2026-10-04-hive-local-agents-operator-guide.md)  
 **Implementation plan:** [../plans/2026-10-04-hive-local-agents.md](../plans/2026-10-04-hive-local-agents.md)  
+**Future (hive-centric registry):** [2026-10-04-hive-agent-registration-boundary.md](2026-10-04-hive-agent-registration-boundary.md)  
 **Related:** [2026-08-14-hive-desktop-app-design.md](2026-08-14-hive-desktop-app-design.md), [2026-10-03-hive-session-tags.md](2026-10-03-hive-session-tags.md), [2026-09-30-notify-idle-wait.md](2026-09-30-notify-idle-wait.md)
 
 ## Problem
