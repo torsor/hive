@@ -1,0 +1,72 @@
+#!/usr/bin/env bash
+# Publication guard: refuse to push private material to a public remote.
+#
+# Runs as git's pre-push hook. For a remote whose URL matches a public pattern
+# (default: github.com), every commit about to be pushed is scanned — added
+# lines and commit messages — against a denylist of private strings. The
+# denylist is NOT in this repository: its contents are themselves private.
+#
+# Setup, once per clone:
+#   git config core.hooksPath .githooks
+#   git config publication.denylist /path/to/denylist.txt   # one extended regex per line
+# Optional:
+#   git config publication.publicRemotes 'github\.com|gitlab\.com'
+#
+# Fails closed: pushing to a public remote without a readable denylist is refused.
+set -euo pipefail
+
+remote_name="${1:-}"
+remote_url="${2:-}"
+public_re="$(git config --get publication.publicRemotes || echo 'github\.com')"
+
+if ! printf '%s' "$remote_url" | grep -Eq "$public_re"; then
+  exit 0   # private remote: nothing to check
+fi
+
+denylist="$(git config --get publication.denylist || true)"
+denylist="${denylist/#\~/$HOME}"
+if [ -z "$denylist" ] || [ ! -r "$denylist" ]; then
+  echo "publication guard: '$remote_name' ($remote_url) is a public remote and no denylist is readable." >&2
+  echo "  set it with: git config publication.denylist /path/to/denylist.txt" >&2
+  exit 1
+fi
+patterns="$(grep -Ev '^[[:space:]]*(#|$)' "$denylist" || true)"
+if [ -z "$patterns" ]; then
+  echo "publication guard: denylist $denylist is empty; refusing to push to a public remote." >&2
+  exit 1
+fi
+
+zero=0000000000000000000000000000000000000000
+status=0
+while read -r local_ref local_sha remote_ref remote_sha; do
+  [ -z "${local_sha:-}" ] && continue
+  [ "$local_sha" = "$zero" ] && continue   # deleting a remote ref
+
+  case "$local_ref" in
+    *-private)
+      echo "publication guard: refusing to push private branch $local_ref to public remote '$remote_name'." >&2
+      status=1
+      continue
+      ;;
+  esac
+
+  if [ "$remote_sha" = "$zero" ]; then
+    range=("$local_sha" --not "--remotes=$remote_name")
+  else
+    range=("$remote_sha..$local_sha")
+  fi
+
+  hits="$(git log --format='commit %h %s%n%b' -p "${range[@]}" 2>/dev/null \
+    | grep -E '^(\+[^+]|commit |[^-+@ d])' \
+    | grep -Ein -f <(printf '%s\n' "$patterns") || true)"
+  if [ -n "$hits" ]; then
+    echo "publication guard: private strings in commits bound for '$remote_name' ($local_ref):" >&2
+    printf '%s\n' "$hits" | head -40 | sed 's/^/  /' >&2
+    status=1
+  fi
+done
+
+if [ "$status" -ne 0 ]; then
+  echo "publication guard: push refused. Remove the strings (rewrite the commits) and try again." >&2
+fi
+exit "$status"
