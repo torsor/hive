@@ -275,6 +275,7 @@ pub fn run() {
             local_agents::register_local_agent_cmd,
             local_agents::remove_local_agent_cmd,
             local_agents::set_local_agent_cmd,
+            local_agents::local_agent_open_line_cmd,
             local_agents::open_local_agent_cmd,
             local_agents::open_local_group_cmd,
         ])

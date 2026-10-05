@@ -106,10 +106,10 @@
 **Interfaces:**
 - Produces: Tauri commands returning `Vec<LocalAgent>` and accepting CRUD payloads matching JSON schema.
 
-- [ ] **Step 1:** Implement `list_local_agents_cmd` → `hive_local_agents::load`.
-- [ ] **Step 2:** Implement `register_local_agent_cmd` / `remove_local_agent_cmd` wrapping crate API.
-- [ ] **Step 3:** Smoke: `npm run tauri dev`, invoke from devtools or temporary button.
-- [ ] **Step 4:** Commit: `Panel Tauri: read/write local-agents.json.`
+- [x] **Step 1:** Implement `list_local_agents_cmd` → `hive_local_agents::load`.
+- [x] **Step 2:** Implement `register_local_agent_cmd` / `remove_local_agent_cmd` wrapping crate API.
+- [x] **Step 3:** Smoke: `npm run tauri dev`, invoke from devtools or temporary button.
+- [x] **Step 4:** Commit: `Panel Tauri: read/write local-agents.json.`
 
 ---
 
@@ -124,11 +124,11 @@
 - Consumes: Tauri commands from Task 4
 - Reuses: `SessionTags`-style tag chips where applicable; `terminal::open_shell_at` pattern for **Open** with `cd && resume` on **local** path (no SSH)
 
-- [ ] **Step 1:** Render Local list from Tauri on app load; refresh after edits.
-- [ ] **Step 2:** Row actions: **Open** (external terminal), **Edit**, **Remove**; header **Add**.
-- [ ] **Step 3:** Tag filter chips + **Open group** (all rows matching selected tag(s)).
-- [ ] **Step 4:** `npm test` in hive-panel; manual Open smoke on macOS.
-- [ ] **Step 5:** Commit: `Panel: Local agents section with open and open-group.`
+- [x] **Step 1:** Render Local list from Tauri on app load; refresh after edits.
+- [x] **Step 2:** Row actions: **Open** (external terminal), **Edit**, **Copy** (open line), **Remove**; header **Register**.
+- [x] **Step 3:** Tag filter + **Open group** (all rows matching selected tag(s)).
+- [x] **Step 4:** `npm test` in hive-panel; manual Open smoke on macOS.
+- [x] **Step 5:** Commit: `Panel: Local agents section with open and open-group.`
 
 ---
 

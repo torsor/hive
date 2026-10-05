@@ -13,7 +13,8 @@ export function LocalAgents({ onFooter }: LocalAgentsProps) {
   const [loading, setLoading] = useState(true);
   const [tagFilter, setTagFilter] = useState(DEFAULT_GROUP_TAG);
   const [formOpen, setFormOpen] = useState(false);
-  const [form, setForm] = useState({
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const emptyForm = () => ({
     id: "",
     title: "",
     cwd: "",
@@ -23,6 +24,33 @@ export function LocalAgents({ onFooter }: LocalAgentsProps) {
     tags: "laptop,my-team",
     notes: "",
   });
+  const [form, setForm] = useState(emptyForm);
+
+  function openNewForm() {
+    setEditingId(null);
+    setForm(emptyForm());
+    setFormOpen(true);
+  }
+
+  function openEditForm(agent: LocalAgent) {
+    setEditingId(agent.id);
+    setForm({
+      id: agent.id,
+      title: agent.title,
+      cwd: agent.cwd,
+      resume: agent.resume,
+      agentmsg: agent.agentmsg ?? "",
+      provider: agent.provider ?? "cursor",
+      tags: (agent.tags ?? []).join(", "),
+      notes: agent.notes ?? "",
+    });
+    setFormOpen(true);
+  }
+
+  function closeForm() {
+    setFormOpen(false);
+    setEditingId(null);
+  }
 
   const refresh = useCallback(async () => {
     setLoading(true);
@@ -62,8 +90,8 @@ export function LocalAgents({ onFooter }: LocalAgentsProps) {
           .map((s) => s.trim())
           .filter(Boolean),
       });
-      setFormOpen(false);
-      onFooter(`Registered ${form.id}`, "success");
+      closeForm();
+      onFooter(`Registered ${form.id.trim()}`, "success");
       await refresh();
     } catch (err) {
       onFooter(String(err), "error");
@@ -91,6 +119,16 @@ export function LocalAgents({ onFooter }: LocalAgentsProps) {
         matchAll: false,
       });
       onFooter(msg, "success");
+    } catch (err) {
+      onFooter(String(err), "error");
+    }
+  }
+
+  async function onCopyLine(id: string) {
+    try {
+      const line = await invoke<string>("local_agent_open_line_cmd", { id });
+      await navigator.clipboard.writeText(line);
+      onFooter(`Copied open line for ${id}`, "success");
     } catch (err) {
       onFooter(String(err), "error");
     }
@@ -130,7 +168,11 @@ export function LocalAgents({ onFooter }: LocalAgentsProps) {
           <button type="button" className="btn btn-compact btn-primary" onClick={() => void onOpenGroup()}>
             Open group
           </button>
-          <button type="button" className="btn btn-compact" onClick={() => setFormOpen((o) => !o)}>
+          <button
+            type="button"
+            className="btn btn-compact"
+            onClick={() => (formOpen ? closeForm() : openNewForm())}
+          >
             {formOpen ? "Cancel" : "Register"}
           </button>
         </div>
@@ -144,6 +186,7 @@ export function LocalAgents({ onFooter }: LocalAgentsProps) {
               <input
                 className="mono"
                 required
+                readOnly={editingId != null}
                 value={form.id}
                 onChange={(e) => setForm((f) => ({ ...f, id: e.target.value }))}
               />
@@ -196,7 +239,7 @@ export function LocalAgents({ onFooter }: LocalAgentsProps) {
             </label>
           </div>
           <button type="submit" className="btn btn-primary">
-            Save (register)
+            {editingId ? "Save" : "Save (register)"}
           </button>
         </form>
       ) : null}
@@ -224,6 +267,9 @@ export function LocalAgents({ onFooter }: LocalAgentsProps) {
                 <td className="mono">{a.id}</td>
                 <td>
                   <div>{a.title}</div>
+                  <div className="muted local-notes mono" title={a.cwd}>
+                    {a.cwd}
+                  </div>
                   {a.notes ? <div className="muted local-notes">{a.notes}</div> : null}
                 </td>
                 <td className="mono">{a.tags?.length ? a.tags.join(", ") : "—"}</td>
@@ -231,6 +277,12 @@ export function LocalAgents({ onFooter }: LocalAgentsProps) {
                   <div className="actions-cell">
                     <button type="button" className="btn btn-compact btn-primary" onClick={() => void onOpen(a.id)}>
                       Open
+                    </button>
+                    <button type="button" className="btn btn-compact" onClick={() => void onCopyLine(a.id)}>
+                      Copy
+                    </button>
+                    <button type="button" className="btn btn-compact" onClick={() => openEditForm(a)}>
+                      Edit
                     </button>
                     <button type="button" className="btn btn-compact btn-danger" onClick={() => void onRemove(a.id)}>
                       Remove

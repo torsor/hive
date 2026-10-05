@@ -105,6 +105,12 @@ pub fn set_local_agent_cmd(args: LocalAgentSetArgs) -> Result<LocalAgent, String
 }
 
 #[tauri::command]
+pub fn local_agent_open_line_cmd(id: String) -> Result<String, String> {
+    let agent = get(&home()?, &id).map_err(|e| e.to_string())?;
+    Ok(open_shell_line(&agent))
+}
+
+#[tauri::command]
 pub fn open_local_agent_cmd(id: String) -> Result<String, String> {
     let agent = get(&home()?, &id).map_err(|e| e.to_string())?;
     let line = open_shell_line(&agent);
